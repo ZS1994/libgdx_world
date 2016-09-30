@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="60" height="34" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="caoDi" tilewidth="32" tileheight="32">
+  <image source="caoDi.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="2" name="shiKuai" tilewidth="32" tileheight="32">
+  <image source="shiKuai.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="3" name="shui" tilewidth="32" tileheight="32">
+  <image source="shui.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="4" name="shuMu" tilewidth="32" tileheight="32">
+  <image source="shuMu.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="5" name="tuDi" tilewidth="32" tileheight="32">
+  <image source="tuDi.png" width="32" height="32"/>
+ </tileset>
+ <layer name="beijing" width="60" height="34">
+  <data encoding="base64" compression="zlib">
+   eJzt1aENACAMRcEi2H9lFiABQfKBnHiuoieatqpq0if1j+PN73SrdzWbvsuZh5eXl5c37+Tl5eXl5eXl5eW9yftivPmdeHml3dL/UjrZAAXOFm0=
+  </data>
+ </layer>
+ <layer name="obj" width="60" height="34">
+  <data encoding="base64" compression="zlib">
+   eJztmUEKgDAMBFf7/z97lxhbadUkM7CnXYTBioJNUiMkSQAysZ9ytZHTRwJfeyOnjwS+9kZO33vt0axgte/T7wJ85/CWb+8ZzuS73SSbb6X7W+35reJb6f37R/C1N3L6SOBrb+T0AAAAMMbX/68ImZkDoF0GbQ==
+  </data>
+ </layer>
+</map>
