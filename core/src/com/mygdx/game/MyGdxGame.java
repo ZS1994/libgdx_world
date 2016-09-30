@@ -48,8 +48,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	public static final int MAP_TILE_WIDTH = 32;
 	public static final int MAP_TILE_HEIGHT = 32;
 	
-	public static final int MAP_WIDTH_INDEX = 60;
-	public static final int MAP_HEIGHT_INDEX = 34;
+	public static final int MAP_WIDTH_INDEX = 300;
+	public static final int MAP_HEIGHT_INDEX = 200;
 	
 	
 	@Override
@@ -81,8 +81,9 @@ public class MyGdxGame extends ApplicationAdapter {
  
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		updatePosition();
 		cam.update();
 		OTRender.setView(cam);
 		OTRender.render();
@@ -98,6 +99,30 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 		labelfps.setText("FPS:"+fps);
 	}
+	
+	
+	/**
+	 * 设置各种焦点
+	 */
+	private void updatePosition() {
+		cam.position.x=h.getX();
+		cam.position.y=h.getY();
+		stage.getCamera().position.x=h.getX();
+		stage.getCamera().position.y=h.getY();
+		//这里位置得改为相对人物的位置
+		//得到中心点的位置
+		float x=h.getX()-750;
+		float y=h.getY()-350;
+		h.btnU.setPosition(x, y+150);
+		h.btnD.setPosition(x, y-150);
+		h.btnL.setPosition(x-150, y);
+		h.btnR.setPosition(x+150, y);
+		//还得改下FPS的位置
+		x=h.getX()-900;
+		y=h.getY()+450;
+		labelfps.setPosition(x, y);
+	}
+	
 	
 	public void initCell(TiledMap map) {
        MapLayers layers = map.getLayers();
