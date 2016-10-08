@@ -1,4 +1,4 @@
-package com.mygdx.game;
+package com.mygdx.actor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.mygdx.entity.Barrier;
+import com.mygdx.game.MyGdxGame;
 
 public class Hero extends Actor{
 
@@ -26,20 +28,23 @@ public class Hero extends Actor{
 	public static final int UP=4;
 	public static final int DOWN=5;
 	
-	ImageButton btnL;
-	ImageButton btnR;
-	ImageButton btnU;
-	ImageButton btnD;
+	public ImageButton btnL;
+	public ImageButton btnR;
+	public ImageButton btnU;
+	public ImageButton btnD;
+	public ImageButton btn_A;
 	
 	float statetime=0;
 	float frequency=0.3f;
+	public static final int SPEED_0=0;
 	public static final int SPEED_1=8;
 	float speed=SPEED_1;
 	//--------------------------------------------------------------------
 	float width=96f;
 	float height=128f;
 	//----------------------------------
-	
+		
+		
 	public Hero(float x,float y) {
 		this.setX(x);
 		this.setY(y);
@@ -113,11 +118,9 @@ public class Hero extends Actor{
 		TextureRegionDrawable imageDown4=new TextureRegionDrawable(tmp21[1][3]);
 		btnU=new ImageButton(imageUp4, imageDown4);
 		
-		btnL.setPosition(50, 200);
-		btnR.setPosition(350, 200);
-		btnU.setPosition(200, 350);
-		btnD.setPosition(200, 50);
-		
+		TextureRegionDrawable imageUp5=new TextureRegionDrawable(tmp11[0][2]);
+		TextureRegionDrawable imageDown5=new TextureRegionDrawable(tmp11[0][3]);
+		btn_A=new ImageButton(imageUp5, imageDown5);
 		
 		
 		btnL.addListener(new InputListener(){
@@ -173,6 +176,54 @@ public class Hero extends Actor{
 			public boolean touchDown(InputEvent event, float x, float y,
 					int pointer, int button) {
 				state=DOWN;
+				return true;
+			}
+		});
+		btn_A.addListener(new InputListener(){
+			@Override
+			public void touchUp(InputEvent event, float x, float y,int pointer, int button) {
+				state=WAIT;
+				super.touchUp(event, x, y, pointer, button);
+			}
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y,int pointer, int button) {
+				int xIndex = 0;
+				int yIndex = 0;
+				if (speed==SPEED_0) {
+					switch (state) {
+					case UP:
+						//找到树的起点（左下角）
+						//先找到碰撞的点
+						if (MyGdxGame.passEnble(getX(), getY()+height+Hero.SPEED_1)) {
+							xIndex=(int)getX()/MyGdxGame.MAP_TILE_WIDTH;
+							yIndex=(int)(getY()+height+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT;
+						}else if (MyGdxGame.passEnble(getX()+MyGdxGame.MAP_TILE_WIDTH, getY()+height+SPEED_1)) {
+							xIndex=(int)(getX()+MyGdxGame.MAP_TILE_WIDTH)/MyGdxGame.MAP_TILE_WIDTH;
+							yIndex=(int)(getY()+height+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT;
+						}else if (MyGdxGame.passEnble(getX()+MyGdxGame.MAP_TILE_WIDTH*2, getY()+height+SPEED_1)) {
+							xIndex=(int)(getX()+MyGdxGame.MAP_TILE_WIDTH*2)/MyGdxGame.MAP_TILE_WIDTH;
+							yIndex=(int)(getY()+height+SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT;
+						}else if (MyGdxGame.passEnble(getX()+MyGdxGame.MAP_TILE_WIDTH*3, getY()+height+SPEED_1)) {
+							xIndex=(int)(getX()+MyGdxGame.MAP_TILE_WIDTH*3)/MyGdxGame.MAP_TILE_WIDTH;
+							yIndex=(int)(getY()+height+SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT;
+						}
+						while (MyGdxGame.barriers[yIndex][xIndex-1].getBarrier()==Barrier.BARRIER_PASS_NO) {
+							xIndex=xIndex-1;
+						}
+						
+						MyGdxGame.barriers[yIndex][xIndex].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex][xIndex+1].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex][xIndex+2].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex, yIndex, MyGdxGame.mapCells.get("水"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+1, yIndex, MyGdxGame.mapCells.get("水"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+2, yIndex, MyGdxGame.mapCells.get("水"));
+						
+//						logger.error(" "+xIndex+"  "+yIndex);
+						break;
+					default:
+						break;
+					}
+				}
 				return true;
 			}
 		});
@@ -247,88 +298,93 @@ public class Hero extends Actor{
 	private void checkCollision(Hero hero) {
 		switch (hero.state) {
 		case Hero.UP://测4个基本点+4个位移后的点
-			if (	   MyGdxGame.passEnble(hero.getX(), hero.getY()+hero.height)
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY()+hero.height)
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()+hero.height)
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()+hero.height)
-					
-					&& MyGdxGame.passEnble(hero.getX(), hero.getY()+hero.height+Hero.SPEED_1)
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY()+hero.height+Hero.SPEED_1)
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()+hero.height+Hero.SPEED_1)
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()+hero.height+Hero.SPEED_1)
-						) {
-					hero.speed=Hero.SPEED_1;
-				}
-				else {
-					hero.speed=0;
-					//当其不能移动时，使其紧挨障碍物边缘
-					int y=((int) ((hero.getY()+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT))*MyGdxGame.MAP_TILE_HEIGHT-1;
-					hero.setY(y);
-				}
+			if (   MyGdxGame.passEnble(hero.getX(), hero.getY()+hero.height)
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY()+hero.height)
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()+hero.height)
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()+hero.height)
+				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+hero.height+Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY()+hero.height+Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()+hero.height+Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()+hero.height+Hero.SPEED_1)
+					) {
+				hero.speed=Hero.SPEED_1;
+			}
+			else {
+				hero.speed=SPEED_0;
+			}
+			//当其不能移动时，使其紧挨障碍物边缘
+			if (hero.speed==SPEED_0) {
+				int y=((int) ((hero.getY()+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT))*MyGdxGame.MAP_TILE_HEIGHT-1;
+				hero.setY(y);
+			}
 			break;
 		case Hero.DOWN:
-			if (	   MyGdxGame.passEnble(hero.getX(), hero.getY())
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY())
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY())
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY())
-					
-					&& MyGdxGame.passEnble(hero.getX(), hero.getY()-Hero.SPEED_1)
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY()-Hero.SPEED_1)
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()-Hero.SPEED_1)
-					&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()-Hero.SPEED_1)
-						) {
-					hero.speed=Hero.SPEED_1;
-				}
-				else {
-					hero.speed=0;
-					//当其不能移动时，使其紧挨障碍物边缘
-					int y=((int) ((hero.getY()-Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT)+1)*MyGdxGame.MAP_TILE_HEIGHT;
-					hero.setY(y);
-				}
+			if (   MyGdxGame.passEnble(hero.getX(), hero.getY())
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY())
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY())
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY())
+				&& MyGdxGame.passEnble(hero.getX(), hero.getY()-Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY()-Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()-Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()-Hero.SPEED_1)
+					) {
+				hero.speed=Hero.SPEED_1;
+			}
+			else {
+				hero.speed=SPEED_0;
+			}
+			//当其不能移动时，使其紧挨障碍物边缘
+			if (hero.speed==SPEED_0) {
+				int y=((int) ((hero.getY()-Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT)+1)*MyGdxGame.MAP_TILE_HEIGHT;
+				hero.setY(y);
+			}
 			break;
 		case Hero.LEFT://5个基本点+5个位移后的点
-			if (	   MyGdxGame.passEnble(hero.getX(), hero.getY())
-					&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
-					&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
-					&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
-					&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
-					
-					&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY())
-					&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
-					&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
-					&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
-					&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
-						) {
-					hero.speed=Hero.SPEED_1;
-				}
-				else {
-					hero.speed=0;
-					//当其不能移动时，使其紧挨障碍物边缘
-					int x=((int) ((hero.getX()-Hero.SPEED_1)/MyGdxGame.MAP_TILE_WIDTH)+1)*MyGdxGame.MAP_TILE_WIDTH;
-					hero.setX(x);
-				}		
+			if (   MyGdxGame.passEnble(hero.getX(), hero.getY())
+				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
+				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
+				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
+				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
+				
+				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY())
+				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
+				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
+				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
+				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
+					) {
+				hero.speed=Hero.SPEED_1;
+			}
+			else {
+				hero.speed=SPEED_0;
+			}
+			//当其不能移动时，使其紧挨障碍物边缘
+			if (hero.speed==SPEED_0) {
+				int x=((int) ((hero.getX()-Hero.SPEED_1)/MyGdxGame.MAP_TILE_WIDTH)+1)*MyGdxGame.MAP_TILE_WIDTH;
+				hero.setX(x);
+			}
 			break;
 		case Hero.RIGHT:
-			if (	   MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY())
-					&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
-					&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
-					&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
-					&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
-					
-					&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY())
-					&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
-					&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
-					&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
-					&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
-						) {
-					hero.speed=Hero.SPEED_1;
-				}
-				else {
-					hero.speed=0;
-					//当其不能移动时，使其紧挨障碍物边缘
-					int x=((int) ((hero.getX()+Hero.SPEED_1)/MyGdxGame.MAP_TILE_WIDTH))*MyGdxGame.MAP_TILE_WIDTH-1;
-					hero.setX(x);
-				}		
+			if (   MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY())
+				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY())
+				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
+					) {
+				hero.speed=Hero.SPEED_1;
+			}
+			else {
+				hero.speed=SPEED_0;
+			}
+			//当其不能移动时，使其紧挨障碍物边缘
+			if (hero.speed==SPEED_0) {
+				int x=((int) ((hero.getX()+Hero.SPEED_1)/MyGdxGame.MAP_TILE_WIDTH))*MyGdxGame.MAP_TILE_WIDTH-1;
+				hero.setX(x);
+			}
 			break;
 		default:
 			break;

@@ -1,5 +1,10 @@
 package com.mygdx.game;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -24,6 +29,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.mygdx.actor.Hero;
+import com.mygdx.entity.Barrier;
 import com.sun.org.apache.xerces.internal.impl.dtd.models.CMAny;
 
 public class MyGdxGame extends ApplicationAdapter {
@@ -36,6 +43,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	TiledMap map;
 	OrthogonalTiledMapRenderer OTRender;
 	Stage stage;
+	//------可破坏图层集合+图块素材--------
+	public static Map<String, TiledMapTileLayer> mapLayers=new HashMap<String, TiledMapTileLayer>();
+	public static Map<String, Cell> mapCells=new HashMap<String, TiledMapTileLayer.Cell>();
 	//-----FPS------
 	LabelStyle labelStyle;
 	BitmapFont font;
@@ -44,13 +54,13 @@ public class MyGdxGame extends ApplicationAdapter {
 	//-----------hero--------
 	float x,y;
 	//------------碰撞检测---------
-	private static int[][] barriers;
 	public static final int MAP_TILE_WIDTH = 32;
 	public static final int MAP_TILE_HEIGHT = 32;
-	
 	public static final int MAP_WIDTH_INDEX = 300;
 	public static final int MAP_HEIGHT_INDEX = 200;
-	
+	public static Barrier[][] barriers = new Barrier[MAP_HEIGHT_INDEX][MAP_WIDTH_INDEX];
+	//--------日志---------------------
+//	Logger logger=Logger.getLogger(MyGdxGame.class);
 	
 	@Override
 	public void create () {
@@ -59,7 +69,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		cam=new OrthographicCamera();
 		OTRender=new OrthogonalTiledMapRenderer(map);
 		cam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		barriers = new int [MAP_HEIGHT_INDEX][MAP_WIDTH_INDEX];
+		
 		initCell(map);
 		//------------HERO---------------------
 		stage=new Stage();
@@ -69,6 +79,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		stage.addActor(h.btnR);
 		stage.addActor(h.btnU);
 		stage.addActor(h.btnD);
+		stage.addActor(h.btn_A);
 		//-----------FPS----------
 		font=new BitmapFont(Gdx.files.internal("font/font.fnt"),Gdx.files.internal("font/font.png"),false);
 		labelStyle=new LabelStyle(font, font.getColor());
@@ -76,6 +87,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		labelfps.setPosition(0, Gdx.graphics.getHeight()-100);
 		stage.addActor(labelfps);
 		Gdx.input.setInputProcessor(stage);
+		
+		
 //		tellBarriers();
 	}
  
@@ -87,9 +100,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		cam.update();
 		OTRender.setView(cam);
 		OTRender.render();
-		
-//		tellHero(h);
-		
 		//---------舞台绘制-------------
 		stage.draw();
 		//-----------FPS绘制-------------
@@ -117,6 +127,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		h.btnD.setPosition(x, y-150);
 		h.btnL.setPosition(x-150, y);
 		h.btnR.setPosition(x+150, y);
+		h.btn_A.setPosition(x+1500, y);
 		//还得改下FPS的位置
 		x=h.getX()-900;
 		y=h.getY()+450;
@@ -127,6 +138,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	public void initCell(TiledMap map) {
        MapLayers layers = map.getLayers();
        for(MapLayer layer : layers) {
+    	   /**
+    	    * 还没写好，暂时不管他
+    	    */
            if(layer.getName().equals("kc1")) {
                MapObjects objs = layer.getObjects();
                for(MapObject obj : objs ){
@@ -136,46 +150,111 @@ public class MyGdxGame extends ApplicationAdapter {
                        y = ro.getRectangle().y;        
                    }
                }
-           }else if(layer.getName().equals("obj")){
+           }
+           //首先是不可破坏障碍的碰撞检测
+           else if(layer.getName().equals("obstacle_undestroy")){
                if(layer instanceof TiledMapTileLayer){
-                   TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;                    
+                   TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;   
+                   mapLayers.put("obstacle_undestroy",tileLayer);
+                   /**
+                    *可以手动设置Cell，可以实现地图破坏效果（地图动态变化）
+                    *已成功
+                    *还需要研究
+            	   tileLayer.setCell(1, 1, null);
+            	   tileLayer.setCell(2, 1, null);
+            	   tileLayer.setCell(3, 1, null);
+            	   tileLayer.setCell(4, 1, null);
+                    */
                    //j为高（行） i为宽（列）
                    for(int j =0 ;j<tileLayer.getHeight();j++){
                        for(int i=0;i < tileLayer.getWidth();i++){
                            //getCell(列，行) 纵坐标翻转
                            Cell cell = tileLayer.getCell( i, j );
-                           if(cell!=null){                                
-                               barriers[j][i] = 1;                            
+                           if (barriers[j][i]==null) {
+                        	   barriers[j][i]=new Barrier();
+                           }
+                           if(cell!=null){  
+                        	   barriers[j][i].setBarrier(Barrier.BARRIER_PASS_NO);
+                        	   barriers[j][i].setType(Barrier.TYPE_UNDESTROY);
                            }else {
-                        	   barriers[j][i] = 0;
+                        	   barriers[j][i].setBarrier(Barrier.BARRIER_PASS_YES);
                            }
                        }
                    }        
                }
            }
+         //可破坏障碍的树的碰撞检测
+           else if(layer.getName().equals("obstacle_destroy_tree")){
+               if(layer instanceof TiledMapTileLayer){
+                   TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;    
+                   mapLayers.put("obstacle_destroy_tree",tileLayer);
+                   //j为高（行） i为宽（列）
+                   for(int j =0 ;j<tileLayer.getHeight();j++){
+                       for(int i=0;i < tileLayer.getWidth();i++){
+                           //getCell(列，行) 纵坐标翻转
+                           Cell cell = tileLayer.getCell( i, j );
+                           if (barriers[j][i].getBarrier()==Barrier.BARRIER_PASS_YES) {
+                        	   if(cell!=null){                                
+                        		   barriers[j][i].setBarrier(Barrier.BARRIER_PASS_NO);    
+                        		   barriers[j][i].setType(Barrier.TYPE_DESTROY_TREE);
+                        	   }else {
+                        		   barriers[j][i].setBarrier(Barrier.BARRIER_PASS_YES);
+                        	   }
+                           }
+                       }
+                   }        
+               }
+           }
+           /*
+            */
+           else if(layer.getName().equals("obstacle_destroy_shelter")){
+               if(layer instanceof TiledMapTileLayer){
+                   TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;    
+                   //j为高（行） i为宽（列）
+                   mapCells.put("草地", tileLayer.getCell(0, 0));
+                   mapCells.put("石块", tileLayer.getCell(1, 0));
+                   mapCells.put("水", tileLayer.getCell(2, 0));
+                   mapCells.put("树", tileLayer.getCell(3, 0));
+                   mapCells.put("土地", tileLayer.getCell(4, 0));
+                   mapCells.put("树木", tileLayer.getCell(6, 0));
+               }
+           }
+           
+           //未完待续...
        }
    }
 	
-	
+	/**
+	 * 不可破坏障碍的碰撞检测
+	 */
 	public static boolean passEnble(float x,float y){
-		return barriers[(int)y/MAP_TILE_HEIGHT][(int)x/MAP_TILE_WIDTH]==0;
+		return barriers[(int)y/MAP_TILE_HEIGHT][(int)x/MAP_TILE_WIDTH].getBarrier()==Barrier.BARRIER_PASS_YES;
 	}
 	
 	
+	/**
+	 * 打印主角位置，用于测试，现已基本不用
+	 * @param hero
+	 */
+	@SuppressWarnings("unused")
 	private void tellHero(Hero hero) {
 		int x=(int)((hero.getX())/MAP_TILE_WIDTH);
 		int y=(int)((hero.getY())/MAP_TILE_HEIGHT);
-		System.out.println("xInd:"+x+"   yInd:"+y+"     该位标志:barriers["+y+"]["+x+"]"+barriers[y][x]);
+		System.out.println("xInd:"+x+"   yInd:"+y+"     该位标志:barriers["+y+"]["+x+"]"+barriers[y][x].getBarrier());
 	}
 	
+	/**
+	 * 打印碰撞检测的数组图
+	 */
+	@SuppressWarnings("unused")
 	private void tellBarriers() {
 		for (int i = 0; i < barriers.length; i++) {
 			for (int j = 0; j < barriers[i].length; j++) {
-				System.out.print(barriers[i][j]);
+				System.out.print(barriers[i][j].getBarrier());
 			}
 			System.out.println();
 		}
-		System.out.println(barriers[11][6]);
+		System.out.println();
 	}
 	
 	
