@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Logger;
 import com.mygdx.entity.Barrier;
 import com.mygdx.game.MyGdxGame;
 
@@ -43,7 +44,7 @@ public class Hero extends Actor{
 	float width=96f;
 	float height=128f;
 	//----------------------------------
-		
+	Logger logger=new Logger("调试");	
 		
 	public Hero(float x,float y) {
 		this.setX(x);
@@ -194,31 +195,58 @@ public class Hero extends Actor{
 					case UP:
 						//找到树的起点（左下角）
 						//先找到碰撞的点
-						if (MyGdxGame.passEnble(getX(), getY()+height+Hero.SPEED_1)) {
+						if (!MyGdxGame.passEnble(getX(), getY()+height+Hero.SPEED_1) &&
+							MyGdxGame.queryTypeFromBarrier(getX(), getY()+height+Hero.SPEED_1).equals(Barrier.TYPE_DESTROY_TREE)) {
+							logger.error("上方右起第一个监测点");
 							xIndex=(int)getX()/MyGdxGame.MAP_TILE_WIDTH;
 							yIndex=(int)(getY()+height+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT;
-						}else if (MyGdxGame.passEnble(getX()+MyGdxGame.MAP_TILE_WIDTH, getY()+height+SPEED_1)) {
+						}else if (!MyGdxGame.passEnble(getX()+MyGdxGame.MAP_TILE_WIDTH, getY()+height+SPEED_1) &&
+								MyGdxGame.queryTypeFromBarrier(getX()+MyGdxGame.MAP_TILE_WIDTH, getY()+height+Hero.SPEED_1).equals(Barrier.TYPE_DESTROY_TREE)) {
+							logger.error("上方右起第二个监测点");
 							xIndex=(int)(getX()+MyGdxGame.MAP_TILE_WIDTH)/MyGdxGame.MAP_TILE_WIDTH;
 							yIndex=(int)(getY()+height+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT;
-						}else if (MyGdxGame.passEnble(getX()+MyGdxGame.MAP_TILE_WIDTH*2, getY()+height+SPEED_1)) {
+						}else if (!MyGdxGame.passEnble(getX()+MyGdxGame.MAP_TILE_WIDTH*2, getY()+height+SPEED_1) &&
+								MyGdxGame.queryTypeFromBarrier(getX()+MyGdxGame.MAP_TILE_WIDTH*2, getY()+height+Hero.SPEED_1).equals(Barrier.TYPE_DESTROY_TREE)) {
+							logger.error("上方右起第三个监测点");
 							xIndex=(int)(getX()+MyGdxGame.MAP_TILE_WIDTH*2)/MyGdxGame.MAP_TILE_WIDTH;
 							yIndex=(int)(getY()+height+SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT;
-						}else if (MyGdxGame.passEnble(getX()+MyGdxGame.MAP_TILE_WIDTH*3, getY()+height+SPEED_1)) {
+						}else if (!MyGdxGame.passEnble(getX()+MyGdxGame.MAP_TILE_WIDTH*3, getY()+height+SPEED_1) &&
+								MyGdxGame.queryTypeFromBarrier(getX()+MyGdxGame.MAP_TILE_WIDTH*3, getY()+height+Hero.SPEED_1).equals(Barrier.TYPE_DESTROY_TREE)) {
+							logger.error("上方右起第四个监测点");
 							xIndex=(int)(getX()+MyGdxGame.MAP_TILE_WIDTH*3)/MyGdxGame.MAP_TILE_WIDTH;
 							yIndex=(int)(getY()+height+SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT;
 						}
-						while (MyGdxGame.barriers[yIndex][xIndex-1].getBarrier()==Barrier.BARRIER_PASS_NO) {
-							xIndex=xIndex-1;
-						}
 						
+						if (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType())) {
+							while (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType()) &&
+									MyGdxGame.barriers[yIndex][xIndex-1].getBarrier()==Barrier.BARRIER_PASS_NO) {
+								xIndex=xIndex-1;
+							}
+						}
 						MyGdxGame.barriers[yIndex][xIndex].setBarrier(Barrier.BARRIER_PASS_YES);
 						MyGdxGame.barriers[yIndex][xIndex+1].setBarrier(Barrier.BARRIER_PASS_YES);
 						MyGdxGame.barriers[yIndex][xIndex+2].setBarrier(Barrier.BARRIER_PASS_YES);
-						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex, yIndex, MyGdxGame.mapCells.get("水"));
-						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+1, yIndex, MyGdxGame.mapCells.get("水"));
-						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+2, yIndex, MyGdxGame.mapCells.get("水"));
-						
-//						logger.error(" "+xIndex+"  "+yIndex);
+						MyGdxGame.barriers[yIndex+1][xIndex].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex+1][xIndex+1].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex+1][xIndex+2].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex+2][xIndex].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex+2][xIndex+1].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex+2][xIndex+2].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex+3][xIndex].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex+3][xIndex+1].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.barriers[yIndex+3][xIndex+2].setBarrier(Barrier.BARRIER_PASS_YES);
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex, yIndex, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+1, yIndex, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+2, yIndex, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex, yIndex+1, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+1, yIndex+1, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+2, yIndex+1, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex, yIndex+2, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+1, yIndex+2, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+2, yIndex+2, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex, yIndex+3, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+1, yIndex+3, MyGdxGame.mapCells.get("土地"));
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+2, yIndex+3, MyGdxGame.mapCells.get("土地"));
 						break;
 					default:
 						break;

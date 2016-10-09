@@ -7,8 +7,8 @@ public class BaseBarrier {
 	private String type;//类型,比如是树、不可破坏的石头
 	private String barrier;//障碍
 	
-	public static final String BARRIER_PASS_NO="o";
-	public static final String BARRIER_PASS_YES="*";
+	public static final String BARRIER_PASS_NO="#";
+	public static final String BARRIER_PASS_YES="o";
 	
 	public static final String TYPE_UNDESTROY="不可破坏障碍";
 	public static final String TYPE_DESTROY_TREE="可破坏障碍——树";

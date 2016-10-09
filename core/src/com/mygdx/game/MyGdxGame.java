@@ -231,6 +231,12 @@ public class MyGdxGame extends ApplicationAdapter {
 		return barriers[(int)y/MAP_TILE_HEIGHT][(int)x/MAP_TILE_WIDTH].getBarrier()==Barrier.BARRIER_PASS_YES;
 	}
 	
+	public static String queryTypeFromBarrier(float x,float y){
+		return barriers[(int)y/MAP_TILE_HEIGHT][(int)x/MAP_TILE_WIDTH].getType();
+	}
+	
+	
+	
 	
 	/**
 	 * 打印主角位置，用于测试，现已基本不用
@@ -243,18 +249,45 @@ public class MyGdxGame extends ApplicationAdapter {
 		System.out.println("xInd:"+x+"   yInd:"+y+"     该位标志:barriers["+y+"]["+x+"]"+barriers[y][x].getBarrier());
 	}
 	
+	
+	
+	
 	/**
 	 * 打印碰撞检测的数组图
+	 * 先取个50*50的看看
 	 */
 	@SuppressWarnings("unused")
 	private void tellBarriers() {
-		for (int i = 0; i < barriers.length; i++) {
-			for (int j = 0; j < barriers[i].length; j++) {
-				System.out.print(barriers[i][j].getBarrier());
+		for (int i = 0; i < 50; i++) {
+			if (i==0) {
+				for (int j = 0; j < 50; j++) {
+				    if (j==0) {
+				    	System.out.print("   ");
+					}else if (j<11) {
+						System.out.print((j-1)+"  ");
+					}else if(j>=11 && j<101){
+						System.out.print((j-1)+" ");
+					}
+				}
+			}else {
+				for (int j = 0; j < 50; j++) {
+					if (j==0) {
+						if (i<11) {
+							System.out.print((i-1)+"  ");
+						}else if(i>=11 && i<101){
+							System.out.print((i-1)+" ");
+						}
+					}else {
+						if (j<10) {
+							System.out.print(barriers[i-1][j-1].getBarrier()+"  ");
+						}else if(j>=10 && j<100){
+							System.out.print(barriers[i-1][j-1].getBarrier()+"  ");
+						}
+					}
+				}
 			}
 			System.out.println();
 		}
-		System.out.println();
 	}
 	
 	
