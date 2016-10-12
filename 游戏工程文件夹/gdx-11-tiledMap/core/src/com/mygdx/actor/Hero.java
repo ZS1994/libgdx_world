@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Logger;
 import com.mygdx.entity.Barrier;
 import com.mygdx.game.MyGdxGame;
+import com.mygdx.tools.Transtion;
 
 public class Hero extends Actor{
 
@@ -36,6 +37,7 @@ public class Hero extends Actor{
 	public ImageButton btnU;
 	public ImageButton btnD;
 	public ImageButton btn_A;
+	public ImageButton btn_B;
 	
 	float statetime=0;
 	float frequency=0.3f;
@@ -125,6 +127,10 @@ public class Hero extends Actor{
 		TextureRegionDrawable imageDown5=new TextureRegionDrawable(tmp11[0][3]);
 		btn_A=new ImageButton(imageUp5, imageDown5);
 		
+		TextureRegionDrawable imageUp6=new TextureRegionDrawable(tmp11[1][0]);
+		TextureRegionDrawable imageDown6=new TextureRegionDrawable(tmp11[1][1]);
+		btn_B=new ImageButton(imageUp6, imageDown6);
+		
 		
 		btnL.addListener(new InputListener(){
 			@Override
@@ -184,10 +190,6 @@ public class Hero extends Actor{
 		});
 		btn_A.addListener(new InputListener(){
 			@Override
-			public void touchUp(InputEvent event, float x, float y,int pointer, int button) {
-				super.touchUp(event, x, y, pointer, button);
-			}
-			@Override
 			public boolean touchDown(InputEvent event, float x, float y,int pointer, int button) {
 				if (speed==SPEED_0) {
 					switch (state) {
@@ -199,6 +201,21 @@ public class Hero extends Actor{
 						break;
 					default:
 						break;
+					}
+				}
+				return true;
+			}
+		});
+		
+		btn_B.addListener(new InputListener(){
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y,int pointer, int button) {
+				int xIndex=Transtion.xToxIndex(getX());
+				int yIndex=Transtion.xToxIndex(getY());
+				for (int i = 0; i < 4; i++) {
+					for (int j = 0; j < 3; j++) {
+						MyGdxGame.barriers[yIndex+i][xIndex+j].setBarrier(Barrier.BARRIER_PASS_NO);
+						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+j, yIndex+i, MyGdxGame.mapCells.get("Ê÷"+(j+1)+"-"+(i+1)));
 					}
 				}
 				return true;

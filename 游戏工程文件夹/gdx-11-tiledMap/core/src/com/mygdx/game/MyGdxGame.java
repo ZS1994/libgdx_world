@@ -82,6 +82,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		stage.addActor(h.btnU);
 		stage.addActor(h.btnD);
 		stage.addActor(h.btn_A);
+		stage.addActor(h.btn_B);
 		//-----------FPS----------
 		font=new BitmapFont(Gdx.files.internal("font/font.fnt"),Gdx.files.internal("font/font.png"),false);
 		labelStyle=new LabelStyle(font, font.getColor());
@@ -92,7 +93,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		
 		
 //		tellBarriers();
-		System.out.println(barriers[0][0].getType());
 	}
  
 	@Override
@@ -130,7 +130,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		h.btnD.setPosition(x, y-150);
 		h.btnL.setPosition(x-150, y);
 		h.btnR.setPosition(x+150, y);
-		h.btn_A.setPosition(x+1500, y);
+		h.btn_A.setPosition(x+1500, y+100);
+		h.btn_B.setPosition(x+1500, y-50);
 		//»¹µÃ¸ÄÏÂFPSµÄÎ»ÖÃ
 		x=h.getX()-900;
 		y=h.getY()+450;
@@ -217,9 +218,20 @@ public class MyGdxGame extends ApplicationAdapter {
                    mapCells.put("²ÝµØ", tileLayer.getCell(0, 0));
                    mapCells.put("Ê¯¿é", tileLayer.getCell(1, 0));
                    mapCells.put("Ë®", tileLayer.getCell(2, 0));
-                   mapCells.put("Ê÷", tileLayer.getCell(3, 0));
+                   mapCells.put("Ê÷Ä¾", tileLayer.getCell(3, 0));
                    mapCells.put("ÍÁµØ", tileLayer.getCell(4, 0));
-                   mapCells.put("Ê÷Ä¾", tileLayer.getCell(6, 0));
+                   mapCells.put("Ê÷1-1", tileLayer.getCell(5, 0));
+                   mapCells.put("Ê÷2-1", tileLayer.getCell(6, 0));
+                   mapCells.put("Ê÷3-1", tileLayer.getCell(7, 0));
+                   mapCells.put("Ê÷1-2", tileLayer.getCell(5, 1));
+                   mapCells.put("Ê÷2-2", tileLayer.getCell(6, 1));
+                   mapCells.put("Ê÷3-2", tileLayer.getCell(7, 1));
+                   mapCells.put("Ê÷1-3", tileLayer.getCell(5, 2));
+                   mapCells.put("Ê÷2-3", tileLayer.getCell(6, 2));
+                   mapCells.put("Ê÷3-3", tileLayer.getCell(7, 2));
+                   mapCells.put("Ê÷1-4", tileLayer.getCell(5, 3));
+                   mapCells.put("Ê÷2-4", tileLayer.getCell(6, 3));
+                   mapCells.put("Ê÷3-4", tileLayer.getCell(7, 3));
                }
            }
            
