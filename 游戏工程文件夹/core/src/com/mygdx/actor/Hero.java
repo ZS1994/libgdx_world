@@ -1,5 +1,7 @@
 package com.mygdx.actor;
 
+import sun.rmi.runtime.Log;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -183,7 +185,6 @@ public class Hero extends Actor{
 		btn_A.addListener(new InputListener(){
 			@Override
 			public void touchUp(InputEvent event, float x, float y,int pointer, int button) {
-				state=WAIT;
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
@@ -240,7 +241,7 @@ public class Hero extends Actor{
 		switch (state) {
 		case UP:
 			if (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType())) {
-				while (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType()) &&
+				while (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex-1].getType()) &&
 						MyGdxGame.barriers[yIndex][xIndex-1].getBarrier()==Barrier.BARRIER_PASS_NO) {
 					xIndex=xIndex-1;
 				}
@@ -248,25 +249,25 @@ public class Hero extends Actor{
 			break;
 		case DOWN:
 			if (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType())) {
-				while (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType()) &&
+				while (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex-1].getType()) &&
 						MyGdxGame.barriers[yIndex][xIndex-1].getBarrier()==Barrier.BARRIER_PASS_NO) {
 					xIndex=xIndex-1;
 				}
+				yIndex=yIndex-3;
 			}
-			yIndex=yIndex-3;
 			break;
 		case LEFT:
 			if (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType())) {
-				while (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType()) &&
+				while (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex-1][xIndex].getType()) &&
 						MyGdxGame.barriers[yIndex-1][xIndex].getBarrier()==Barrier.BARRIER_PASS_NO) {
 					yIndex=yIndex-1;
 				}
+				xIndex=xIndex-2;
 			}
-			xIndex=xIndex-2;
 			break;
 		case RIGHT:
 			if (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType())) {
-				while (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex][xIndex].getType()) &&
+				while (Barrier.TYPE_DESTROY_TREE.equals(MyGdxGame.barriers[yIndex-1][xIndex].getType()) &&
 						MyGdxGame.barriers[yIndex-1][xIndex].getBarrier()==Barrier.BARRIER_PASS_NO) {
 					yIndex=yIndex-1;
 				}
@@ -275,10 +276,13 @@ public class Hero extends Actor{
 		default:
 			break;
 		}
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 3; j++) {
-				MyGdxGame.barriers[yIndex+i][xIndex+j].setBarrier(Barrier.BARRIER_PASS_YES);
-				MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+j, yIndex+i, MyGdxGame.mapCells.get("土地"));
+		//当接触的面不是可摧毁的场景，那么xindex和yindex必定是初始值0
+		if (xIndex!=0 && yIndex!=0) {
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 3; j++) {
+					MyGdxGame.barriers[yIndex+i][xIndex+j].setBarrier(Barrier.BARRIER_PASS_YES);
+					MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+j, yIndex+i, MyGdxGame.mapCells.get("土地"));
+				}
 			}
 		}
 	}

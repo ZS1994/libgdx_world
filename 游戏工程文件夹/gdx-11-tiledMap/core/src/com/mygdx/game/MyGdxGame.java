@@ -92,6 +92,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		
 		
 //		tellBarriers();
+		System.out.println(barriers[0][0].getType());
 	}
  
 	@Override
