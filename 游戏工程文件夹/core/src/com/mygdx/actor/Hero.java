@@ -215,6 +215,7 @@ public class Hero extends Actor{
 				for (int i = 0; i < 4; i++) {
 					for (int j = 0; j < 3; j++) {
 						MyGdxGame.barriers[yIndex+i][xIndex+j].setBarrier(Barrier.BARRIER_PASS_NO);
+						MyGdxGame.barriers[yIndex+i][xIndex+j].setType(Barrier.TYPE_DESTROY_TREE);
 						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+j, yIndex+i, MyGdxGame.mapCells.get("Ê÷"+(j+1)+"-"+(i+1)));
 					}
 				}
