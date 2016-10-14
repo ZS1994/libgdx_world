@@ -78,9 +78,9 @@ public class Hero extends Actor{
 		aniR=new Animation(frequency, region3);
 		
 		
-		aniR.setPlayMode(PlayMode.NORMAL);
-		aniL.setPlayMode(PlayMode.NORMAL);
-		aniW.setPlayMode(PlayMode.NORMAL);
+		aniR.setPlayMode(PlayMode.LOOP);
+		aniL.setPlayMode(PlayMode.LOOP);
+		aniW.setPlayMode(PlayMode.LOOP);
 		
 		//------------------------------------------------------------------
 		
@@ -123,6 +123,7 @@ public class Hero extends Actor{
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				speed=SPEED_0;
+				state=WAIT;
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
@@ -139,6 +140,7 @@ public class Hero extends Actor{
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				speed=SPEED_0;
+				state=WAIT;
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
@@ -155,6 +157,7 @@ public class Hero extends Actor{
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				speed=SPEED_0;
+				state=WAIT;
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
@@ -170,6 +173,7 @@ public class Hero extends Actor{
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				speed=SPEED_0;
+				state=WAIT;
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
