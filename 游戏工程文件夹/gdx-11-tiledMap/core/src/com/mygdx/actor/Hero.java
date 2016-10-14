@@ -6,6 +6,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -13,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Logger;
 import com.mygdx.entity.Barrier;
 import com.mygdx.game.MyGdxGame;
@@ -20,18 +23,18 @@ import com.mygdx.tools.Transtion;
 
 public class Hero extends Actor{
 
-	Texture t1,t2,t3;
-	Animation aniW,aniR,aniL;
+	Animation aniW_L,aniW_R,aniR,aniL;
 	
 	TextureRegion currentFrame;
 	
 	public static final int LEFT=1;
 	public static final int RIGHT=2;
-	public static final int WAIT=3;
+	public static final int WAIT_LEFT=3;
 	public static final int UP=4;
 	public static final int DOWN=5;
-	int state=WAIT;
-	int state_last=WAIT;
+	public static final int WAIT_RIGHT=6;
+	int state=WAIT_LEFT;
+	int state_last=WAIT_LEFT;
 	
 	public ImageButton btnL;
 	public ImageButton btnR;
@@ -41,13 +44,13 @@ public class Hero extends Actor{
 	public ImageButton btn_B;
 	
 	float statetime=0;
-	float frequency=0.3f;
+	float frequency=0.016f;
 	public static final int SPEED_0=0;
-	public static final int SPEED_1=8;
+	public static final int SPEED_1=4;
 	float speed=SPEED_1;
 	//--------------------------------------------------------------------
-	float width=96f;
-	float height=128f;
+	float width=45f;
+	float height=94f;
 	//----------------------------------
 	Logger logger=new Logger("调试");	
 		
@@ -55,32 +58,26 @@ public class Hero extends Actor{
 		this.setX(x);
 		this.setY(y);
 		
-		t1=new Texture(Gdx.files.internal("renwu/yinXiong.png"));
-		t2=new Texture(Gdx.files.internal("renwu/yinXiong2.png"));
-		t3=new Texture(Gdx.files.internal("renwu/yinXiong3.png"));
+		TextureAtlas atlas1=new TextureAtlas(Gdx.files.internal("renwu/man.atlas"));
+		TextureAtlas atlas2=new TextureAtlas(Gdx.files.internal("renwu/man.atlas"));
 		
-		TextureRegion region[]=new TextureRegion[2];
-		region[0]=new TextureRegion(t1);
-		region[1]=new TextureRegion(t1);
-		aniW=new Animation(frequency, region);
+		TextureRegion regions2[]=new TextureRegion[60];
+		Array<AtlasRegion> atlasRegion=atlas2.getRegions();
+		for (int i = 0; i < atlasRegion.size; i++) {
+			atlasRegion.get(i).flip(true, false);
+		}
 		
 		
-		TextureRegion region2[]=new TextureRegion[2];
-		region2[0]=new TextureRegion(t1);
-		region2[1]=new TextureRegion(t3);
-		aniL=new Animation(frequency, region2);
-		
-		TextureRegion region3[]=new TextureRegion[2];
-		region3[0]=new TextureRegion(t1);
-		TextureRegion rtmp=new TextureRegion(new Texture(Gdx.files.internal("renwu/yinXiong3.png")));
-		rtmp.flip(true, false);
-		region3[1]=rtmp;
-		aniR=new Animation(frequency, region3);
+		aniW_L=new Animation(frequency, atlas1.findRegions("run0001"));
+		aniW_R=new Animation(frequency, atlas2.findRegions("run0001"));
+		aniL=new Animation(frequency, atlas1.getRegions());
+		aniR=new Animation(frequency, atlas2.getRegions());
 		
 		
 		aniR.setPlayMode(PlayMode.LOOP);
 		aniL.setPlayMode(PlayMode.LOOP);
-		aniW.setPlayMode(PlayMode.LOOP);
+		aniW_L.setPlayMode(PlayMode.LOOP);
+		aniW_R.setPlayMode(PlayMode.LOOP);
 		
 		//------------------------------------------------------------------
 		
@@ -123,7 +120,16 @@ public class Hero extends Actor{
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				speed=SPEED_0;
-				state=WAIT;
+				switch (state_last) {
+				case LEFT:
+					state=WAIT_LEFT;
+					break;
+				case RIGHT:
+					state=WAIT_RIGHT;
+					break;
+				default:
+					break;
+				}
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
@@ -140,7 +146,16 @@ public class Hero extends Actor{
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				speed=SPEED_0;
-				state=WAIT;
+				switch (state_last) {
+				case LEFT:
+					state=WAIT_LEFT;
+					break;
+				case RIGHT:
+					state=WAIT_RIGHT;
+					break;
+				default:
+					break;
+				}
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
@@ -157,7 +172,16 @@ public class Hero extends Actor{
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				speed=SPEED_0;
-				state=WAIT;
+				switch (state_last) {
+				case LEFT:
+					state=WAIT_LEFT;
+					break;
+				case RIGHT:
+					state=WAIT_RIGHT;
+					break;
+				default:
+					break;
+				}
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
@@ -173,7 +197,16 @@ public class Hero extends Actor{
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				speed=SPEED_0;
-				state=WAIT;
+				switch (state_last) {
+				case LEFT:
+					state=WAIT_LEFT;
+					break;
+				case RIGHT:
+					state=WAIT_RIGHT;
+					break;
+				default:
+					break;
+				}
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
@@ -222,7 +255,7 @@ public class Hero extends Actor{
 	}
 	
 	
-	/**
+	/**砍树
 	 * 张顺 2016年10月9日17:28:38
 	 * @param x  左右：接触边左起 ； 上下：下起第一个点的X坐标
 	 * @param y  左右：接触边左起 ； 上下：下起第一个点的Y坐标
@@ -337,8 +370,11 @@ public class Hero extends Actor{
 				break;
 			}
 			break;
-		case WAIT:
-			currentFrame=aniW.getKeyFrame(statetime, false);
+		case WAIT_LEFT:
+			currentFrame=aniW_L.getKeyFrame(statetime, false);
+			break;
+		case WAIT_RIGHT:
+			currentFrame=aniW_R.getKeyFrame(statetime, false);
 			break;
 		default:
 			break;
@@ -362,7 +398,9 @@ public class Hero extends Actor{
 		case DOWN:
 			setY(getY()-speed);
 			break;
-		case WAIT:
+		case WAIT_LEFT:
+			break;
+		case WAIT_RIGHT:
 			break;
 		default:
 			break;
@@ -385,15 +423,10 @@ public class Hero extends Actor{
 	 */
 	private void checkCollision(Hero hero) {
 		switch (hero.state) {
-		case Hero.UP://测4个基本点+4个位移后的点
-			if (   MyGdxGame.passEnble(hero.getX(), hero.getY()+hero.height)
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY()+hero.height)
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()+hero.height)
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()+hero.height)
-				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+hero.height+Hero.SPEED_1)
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY()+hero.height+Hero.SPEED_1)
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()+hero.height+Hero.SPEED_1)
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()+hero.height+Hero.SPEED_1)
+		case Hero.UP://测3个位移后的点
+			if (   MyGdxGame.passEnble(hero.getX(), hero.getY()+hero.height+Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width/2, hero.getY()+hero.height+Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+hero.height+Hero.SPEED_1)
 					) {
 				if (hero.speed!=Hero.SPEED_0) {
 					hero.speed=Hero.SPEED_1;
@@ -403,20 +436,15 @@ public class Hero extends Actor{
 				hero.speed=SPEED_0;
 				//当其不能移动时，使其紧挨障碍物边缘
 				if (hero.speed==SPEED_0) {
-					int y=((int) ((hero.getY()+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT))*MyGdxGame.MAP_TILE_HEIGHT-1;
+					float y=((int) ((hero.getY()+hero.height+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT))*MyGdxGame.MAP_TILE_HEIGHT-hero.height-1;
 					hero.setY(y);
 				}
 			}
 			break;
 		case Hero.DOWN:
-			if (   MyGdxGame.passEnble(hero.getX(), hero.getY())
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY())
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY())
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY())
-				&& MyGdxGame.passEnble(hero.getX(), hero.getY()-Hero.SPEED_1)
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH, hero.getY()-Hero.SPEED_1)
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()-Hero.SPEED_1)
-				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()-Hero.SPEED_1)
+			if (   MyGdxGame.passEnble(hero.getX(), hero.getY()-Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width/2, hero.getY()-Hero.SPEED_1)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()-Hero.SPEED_1)
 					) {
 				if (hero.speed!=Hero.SPEED_0) {
 					hero.speed=Hero.SPEED_1;
@@ -431,18 +459,11 @@ public class Hero extends Actor{
 				}
 			}
 			break;
-		case Hero.LEFT://5个基本点+5个位移后的点
-			if (   MyGdxGame.passEnble(hero.getX(), hero.getY())
-				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
-				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
-				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
-				&& MyGdxGame.passEnble(hero.getX(), hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
-				
-				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY())
-				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
-				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
-				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
-				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
+		case Hero.LEFT://4个位移后的点
+			if (   MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY())
+				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+hero.height/3)
+				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+hero.height/3*2)
+				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+hero.height)
 					) {
 				if (hero.speed!=Hero.SPEED_0) {
 					hero.speed=Hero.SPEED_1;
@@ -455,31 +476,23 @@ public class Hero extends Actor{
 			}
 			break;
 		case Hero.RIGHT:
-			if (   MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY())
-				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
-				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
-				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
-				&& MyGdxGame.passEnble(hero.getX()+hero.width, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
-				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY())
-				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT)
-				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*2)
-				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
-				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
+			if (   MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY())
+				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+hero.height/3)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+hero.height/3*2)
+				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+hero.height)
 					) {
 				if (hero.speed!=Hero.SPEED_0) {
 					hero.speed=Hero.SPEED_1;
 				}
-			}
-			else {
+			}else {
 				hero.speed=SPEED_0;
 				//当其不能移动时，使其紧挨障碍物边缘
-				int x=((int) ((hero.getX()+Hero.SPEED_1)/MyGdxGame.MAP_TILE_WIDTH))*MyGdxGame.MAP_TILE_WIDTH-1;
+				float x=((int) ((hero.getX()+hero.width+Hero.SPEED_1)/MyGdxGame.MAP_TILE_WIDTH))*MyGdxGame.MAP_TILE_WIDTH-1-hero.width;
 				hero.setX(x);
 			}
 			break;
 		default:
 			break;
 		}
-//		System.out.println("碰撞检测——当前Y："+getY()+"    当前speed："+speed);
 	}
 }
