@@ -21,7 +21,7 @@ import com.mygdx.tools.Transtion;
 public class Hero extends Actor{
 
 	Texture t1,t2,t3;
-	Animation aniW,aniR,aniL,aniU,aniD;
+	Animation aniW,aniR,aniL;
 	
 	TextureRegion currentFrame;
 	
@@ -31,6 +31,7 @@ public class Hero extends Actor{
 	public static final int UP=4;
 	public static final int DOWN=5;
 	int state=WAIT;
+	int state_last=WAIT;
 	
 	public ImageButton btnL;
 	public ImageButton btnR;
@@ -76,25 +77,10 @@ public class Hero extends Actor{
 		region3[1]=rtmp;
 		aniR=new Animation(frequency, region3);
 		
-		TextureRegion region4[]=new TextureRegion[2];
-		region4[0]=new TextureRegion(t1);
-		TextureRegion rtmp2=new TextureRegion(new Texture(Gdx.files.internal("renwu/yinXiong2.png")));
-		rtmp2.flip(false,true);
-		region4[1]=rtmp2;
-		aniU=new Animation(frequency, region4);
-
-		TextureRegion region5[]=new TextureRegion[2];
-		region5[0]=new TextureRegion(t1);
-		region5[1]=new TextureRegion(t2);
-		aniD=new Animation(frequency, region5);
-		
-		
 		
 		aniR.setPlayMode(PlayMode.NORMAL);
 		aniL.setPlayMode(PlayMode.NORMAL);
 		aniW.setPlayMode(PlayMode.NORMAL);
-		aniD.setPlayMode(PlayMode.NORMAL);
-		aniU.setPlayMode(PlayMode.NORMAL);
 		
 		//------------------------------------------------------------------
 		
@@ -136,13 +122,15 @@ public class Hero extends Actor{
 			@Override
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
-				state=WAIT;
+				speed=SPEED_0;
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y,
 					int pointer, int button) {
 				state=LEFT;
+				state_last=state;
+				speed=SPEED_1;
 				return true;
 			}
 		});
@@ -150,13 +138,15 @@ public class Hero extends Actor{
 			@Override
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
-				state=WAIT;
+				speed=SPEED_0;
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y,
 					int pointer, int button) {
 				state=RIGHT;
+				state_last=state;
+				speed=SPEED_1;
 				return true;
 			}
 		});
@@ -164,13 +154,14 @@ public class Hero extends Actor{
 			@Override
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
-				state=WAIT;
+				speed=SPEED_0;
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y,
 					int pointer, int button) {
 				state=UP;
+				speed=SPEED_1;
 				return true;
 			}
 		});
@@ -178,13 +169,14 @@ public class Hero extends Actor{
 			@Override
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
-				state=WAIT;
+				speed=SPEED_0;
 				super.touchUp(event, x, y, pointer, button);
 			}
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y,
 					int pointer, int button) {
 				state=DOWN;
+				speed=SPEED_1;
 				return true;
 			}
 		});
@@ -318,10 +310,28 @@ public class Hero extends Actor{
 			currentFrame=aniL.getKeyFrame(statetime, false);
 			break;
 		case UP:
-			currentFrame=aniU.getKeyFrame(statetime, false);
+			switch (state_last) {
+			case LEFT:
+				currentFrame=aniL.getKeyFrame(statetime, false);
+				break;
+			case RIGHT:
+				currentFrame=aniR.getKeyFrame(statetime, false);
+				break;
+			default:
+				break;
+			}
 			break;
 		case DOWN:
-			currentFrame=aniD.getKeyFrame(statetime, false);
+			switch (state_last) {
+			case LEFT:
+				currentFrame=aniL.getKeyFrame(statetime, false);
+				break;
+			case RIGHT:
+				currentFrame=aniR.getKeyFrame(statetime, false);
+				break;
+			default:
+				break;
+			}
 			break;
 		case WAIT:
 			currentFrame=aniW.getKeyFrame(statetime, false);
@@ -381,15 +391,17 @@ public class Hero extends Actor{
 				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()+hero.height+Hero.SPEED_1)
 				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()+hero.height+Hero.SPEED_1)
 					) {
-				hero.speed=Hero.SPEED_1;
+				if (hero.speed!=Hero.SPEED_0) {
+					hero.speed=Hero.SPEED_1;
+				}
 			}
 			else {
 				hero.speed=SPEED_0;
-			}
-			//当其不能移动时，使其紧挨障碍物边缘
-			if (hero.speed==SPEED_0) {
-				int y=((int) ((hero.getY()+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT))*MyGdxGame.MAP_TILE_HEIGHT-1;
-				hero.setY(y);
+				//当其不能移动时，使其紧挨障碍物边缘
+				if (hero.speed==SPEED_0) {
+					int y=((int) ((hero.getY()+Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT))*MyGdxGame.MAP_TILE_HEIGHT-1;
+					hero.setY(y);
+				}
 			}
 			break;
 		case Hero.DOWN:
@@ -402,15 +414,17 @@ public class Hero extends Actor{
 				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*2, hero.getY()-Hero.SPEED_1)
 				&& MyGdxGame.passEnble(hero.getX()+MyGdxGame.MAP_TILE_WIDTH*3, hero.getY()-Hero.SPEED_1)
 					) {
-				hero.speed=Hero.SPEED_1;
+				if (hero.speed!=Hero.SPEED_0) {
+					hero.speed=Hero.SPEED_1;
+				}
 			}
 			else {
 				hero.speed=SPEED_0;
-			}
-			//当其不能移动时，使其紧挨障碍物边缘
-			if (hero.speed==SPEED_0) {
-				int y=((int) ((hero.getY()-Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT)+1)*MyGdxGame.MAP_TILE_HEIGHT;
-				hero.setY(y);
+				//当其不能移动时，使其紧挨障碍物边缘
+				if (hero.speed==SPEED_0) {
+					int y=((int) ((hero.getY()-Hero.SPEED_1)/MyGdxGame.MAP_TILE_HEIGHT)+1)*MyGdxGame.MAP_TILE_HEIGHT;
+					hero.setY(y);
+				}
 			}
 			break;
 		case Hero.LEFT://5个基本点+5个位移后的点
@@ -426,13 +440,12 @@ public class Hero extends Actor{
 				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
 				&& MyGdxGame.passEnble(hero.getX()-Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
 					) {
-				hero.speed=Hero.SPEED_1;
-			}
-			else {
+				if (hero.speed!=Hero.SPEED_0) {
+					hero.speed=Hero.SPEED_1;
+				}
+			}else {
 				hero.speed=SPEED_0;
-			}
-			//当其不能移动时，使其紧挨障碍物边缘
-			if (hero.speed==SPEED_0) {
+				//使其紧挨障碍物边缘
 				int x=((int) ((hero.getX()-Hero.SPEED_1)/MyGdxGame.MAP_TILE_WIDTH)+1)*MyGdxGame.MAP_TILE_WIDTH;
 				hero.setX(x);
 			}
@@ -449,13 +462,13 @@ public class Hero extends Actor{
 				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*3)
 				&& MyGdxGame.passEnble(hero.getX()+hero.width+Hero.SPEED_1, hero.getY()+MyGdxGame.MAP_TILE_HEIGHT*4)
 					) {
-				hero.speed=Hero.SPEED_1;
+				if (hero.speed!=Hero.SPEED_0) {
+					hero.speed=Hero.SPEED_1;
+				}
 			}
 			else {
 				hero.speed=SPEED_0;
-			}
-			//当其不能移动时，使其紧挨障碍物边缘
-			if (hero.speed==SPEED_0) {
+				//当其不能移动时，使其紧挨障碍物边缘
 				int x=((int) ((hero.getX()+Hero.SPEED_1)/MyGdxGame.MAP_TILE_WIDTH))*MyGdxGame.MAP_TILE_WIDTH-1;
 				hero.setX(x);
 			}
