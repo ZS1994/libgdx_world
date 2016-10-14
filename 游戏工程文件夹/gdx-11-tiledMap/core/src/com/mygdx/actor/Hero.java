@@ -34,7 +34,7 @@ public class Hero extends Actor{
 	public static final int DOWN=5;
 	public static final int WAIT_RIGHT=6;
 	int state=WAIT_LEFT;
-	int state_last=WAIT_LEFT;
+	int state_last=LEFT;//只有左和右两种状态
 	
 	public ImageButton btnL;
 	public ImageButton btnR;
@@ -239,13 +239,25 @@ public class Hero extends Actor{
 		btn_B.addListener(new InputListener(){
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y,int pointer, int button) {
-				int xIndex=Transtion.xToxIndex(getX());
+				int xIndex=0;
 				int yIndex=Transtion.xToxIndex(getY());
-				for (int i = 0; i < 4; i++) {
-					for (int j = 0; j < 3; j++) {
-						MyGdxGame.barriers[yIndex+i][xIndex+j].setBarrier(Barrier.BARRIER_PASS_NO);
-						MyGdxGame.barriers[yIndex+i][xIndex+j].setType(Barrier.TYPE_DESTROY_TREE);
-						MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+j, yIndex+i, MyGdxGame.mapCells.get("树"+(j+1)+"-"+(i+1)));
+				switch (state) {
+				case LEFT:
+					xIndex=Transtion.xToxIndex(getX())-3;
+					break;
+				case RIGHT:
+					xIndex=Transtion.xToxIndex(getX()+width);
+					break;
+				default:
+					break;
+				}
+				if (xIndex!=0) {
+					for (int i = 0; i < 4; i++) {
+						for (int j = 0; j < 3; j++) {
+							MyGdxGame.barriers[yIndex+i][xIndex+j].setBarrier(Barrier.BARRIER_PASS_NO);
+							MyGdxGame.barriers[yIndex+i][xIndex+j].setType(Barrier.TYPE_DESTROY_TREE);
+							MyGdxGame.mapLayers.get("obstacle_destroy_tree").setCell(xIndex+j, yIndex+i, MyGdxGame.mapCells.get("树"+(j+1)+"-"+(i+1)));
+						}
 					}
 				}
 				return true;
