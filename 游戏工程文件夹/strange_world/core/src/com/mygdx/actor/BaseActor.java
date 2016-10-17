@@ -135,11 +135,10 @@ public class BaseActor extends Actor{
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
 		stateTime=stateTime+Gdx.graphics.getDeltaTime();
-		update();
 		if (drawRegion!=null) {
-			world.updatePosition();
 			batch.draw(drawRegion, getX(), getY());
 		}
+		update();
 	}
 	
 	private void update() {

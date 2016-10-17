@@ -84,19 +84,6 @@ public class World {
 		cam.position.y=h.getY();
 		stage.getCamera().position.x=h.getX();
 		stage.getCamera().position.y=h.getY();
-		System.out.print("°æcam.position.x°ø:");
-		System.out.print(cam.position.x);
-		System.out.print("°æstage.getCamera().position.x°ø:");
-		System.out.print(stage.getCamera().position.x);
-		System.out.print("°æx°ø:");
-		System.out.print(h.getX());
-		System.out.print("°æcam.position.y°ø:");
-		System.out.print(cam.position.y);
-		System.out.print("°æstage.getCamera().position.y°ø:");
-		System.out.print(stage.getCamera().position.y);
-		System.out.print("°æy°ø:");
-		System.out.print(h.getY());
-		System.out.println();
 	}
 	
 	public void draw() {
@@ -104,6 +91,7 @@ public class World {
 		OTRender.setView(cam);
 		OTRender.render();
 		//---------ŒËÃ®ªÊ÷∆-------------
+		updatePosition();
 		stage.draw();
 	}
 	
