@@ -45,6 +45,8 @@ public class World {
 	}
 	//----FPS------------
 	private Fps fps;
+	//-----地图的碰撞检测--------------
+	
 	
 	
 	/**
@@ -95,5 +97,13 @@ public class World {
 		stage.draw();
 	}
 	
+	
+	/**
+	 * 初始化与地图相关的各种组件
+	 */
+	private void initFromMap() {
+		
+		
+	}
 	
 }	
