@@ -104,9 +104,11 @@ public class BaseActor extends Actor{
 	/**主角  
 	 * <br>张顺  2016年10月15日11:47:25
 	 */
-	public BaseActor(float x,float y,World world) {
+	public BaseActor(float x,float y,float w,float h,World world) {
 		setX(x);
 		setY(y);
+		setWidth(w);
+		setHeight(h);
 		setWorld(world);
 	}
 

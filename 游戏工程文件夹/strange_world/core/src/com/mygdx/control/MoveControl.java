@@ -16,7 +16,7 @@ public class MoveControl implements IControl{
 	public static final int STATE_DOWN=4;
 	
 	public static final int SPEED_0=0;
-	public static final int SPEED_1=8;
+	public static final int SPEED_1=20;
 
 	private BaseActor actor;//需要一个角色
 	

@@ -1,4 +1,4 @@
-package com.mygdx.world;
+package com.mygdx.world.resources;
 
 import java.util.Map;
 
@@ -17,6 +17,32 @@ public class Water {
 	private static TiledMapTileLayer layer; 
 	
 	
+	
+	public static Cell[][] getCells() {
+		return cells;
+	}
+	public static void setCells(Cell[][] cells) {
+		Water.cells = cells;
+	}
+	public static int getWidth() {
+		return width;
+	}
+	public static void setWidth(int width) {
+		Water.width = width;
+	}
+	public static int getHeight() {
+		return height;
+	}
+	public static void setHeight(int height) {
+		Water.height = height;
+	}
+	public static TiledMapTileLayer getLayer() {
+		return layer;
+	}
+	public static void setLayer(TiledMapTileLayer layer) {
+		Water.layer = layer;
+	}
+
 	/**
 	 * 初始化资源
 	 * @param cells
