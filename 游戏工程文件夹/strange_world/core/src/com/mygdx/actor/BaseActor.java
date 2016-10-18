@@ -17,8 +17,7 @@ import com.mygdx.world.World;
 public class BaseActor extends Actor{
 
 	private Animation aniWL,aniWR,aniL,aniR;
-	
-	
+	private String type;
 	private int state=MoveControl.STATE_WAIT;
 	private int stateLast=MoveControl.STATE_LEFT;//上一个状态只有左右
 	private float speed=MoveControl.SPEED_1;
@@ -96,7 +95,14 @@ public class BaseActor extends Actor{
 	public void setStateTime(float stateTime) {
 		this.stateTime = stateTime;
 	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
 	//-------------------------
+	
 	
 	
 	
@@ -104,11 +110,12 @@ public class BaseActor extends Actor{
 	/**主角  
 	 * <br>张顺  2016年10月15日11:47:25
 	 */
-	public BaseActor(float x,float y,float w,float h,World world) {
+	public BaseActor(float x,float y,float w,float h,String type,World world) {
 		setX(x);
 		setY(y);
 		setWidth(w);
 		setHeight(h);
+		setType(type);
 		setWorld(world);
 	}
 

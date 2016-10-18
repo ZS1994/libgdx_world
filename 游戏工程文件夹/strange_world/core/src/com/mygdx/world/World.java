@@ -9,8 +9,10 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import com.mygdx.actor.Dog;
 import com.mygdx.actor.Fps;
 import com.mygdx.actor.MainActor;
+import com.mygdx.ai.Pathfind;
 import com.mygdx.control.AnimationControl;
 import com.mygdx.control.ButtonControl;
 import com.mygdx.control.CollisionControl;
@@ -48,21 +50,29 @@ public class World {
 		OTRender=new OrthogonalTiledMapRenderer(map);
 		cam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		stage=new Stage(new ScalingViewport(Scaling.stretch, 1920, 1080,cam));
-		//--------------------
-		h=new MainActor(150,200,45,94,this);
-		//-----------------
+		//---------各系统初始化---------
+		TiledMapSystem.initialize(map);
+		//-------主角----------
+		h=new MainActor(200,200,this);
 		stage.addActor(h);
-		h.initialize("man/man.atlas");
 		h.getControls().add(new AnimationControl(h));
 		h.getControls().add(new ButtonControl(h));
 		h.getControls().add(new CollisionControl(h));
 		h.getControls().add(new MoveControl(h));
+		//---------狗----------------
+		Dog dog=new Dog(500, 600, this);
+		stage.addActor(dog);
+		dog.getControls().add(new AnimationControl(dog));
+//		new Pathfind(dog, h);
+		dog.getControls().add(new Pathfind(dog, h));
+		dog.getControls().add(new CollisionControl(dog));
+		dog.getControls().add(new MoveControl(dog));
 		//----------fps----------
 		fps=new Fps(h,stage);
 		stage.addActor(fps);
 		Gdx.input.setInputProcessor(stage);
-		//---------各系统初始化---------
-		TiledMapSystem.initialize(map);
+		
+		System.out.println(TiledMapSystem.passEnble(500f, 512f));
 	}
 	
 	
