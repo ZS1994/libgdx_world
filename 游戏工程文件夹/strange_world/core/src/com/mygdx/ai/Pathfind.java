@@ -65,7 +65,6 @@ public class Pathfind implements IControl{
 		assembly(stepNow);
 //		tell(getStepOn().get(0));
 //		tell2(stepNow);
-		/*
 		System.out.println("实际路径————————————————————————");
 		for (int i = 0; i < str.length; i++) {
 			for (int j = 0; j < str[i].length; j++) {
@@ -96,7 +95,6 @@ public class Pathfind implements IControl{
 			}
 			System.out.println();
 		}
-		*/
 	}
 	
 	
@@ -111,10 +109,10 @@ public class Pathfind implements IControl{
 			return;
 		}
 		
-		Step step1=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()+stepMain.getH());
-		Step step2=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()-stepMain.getH());
-		Step step3=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()-stepMain.getW(), stepMain.getY());
-		Step step4=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()+stepMain.getW(), stepMain.getY());
+		Step step1=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()+stepMain.getH());//上
+		Step step2=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()-stepMain.getH());//下
+		Step step3=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()-stepMain.getW(), stepMain.getY());//左
+		Step step4=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()+stepMain.getW(), stepMain.getY());//右
 		
 		getStepOn().add(step1);
 		getStepOn().add(step2);
@@ -124,11 +122,65 @@ public class Pathfind implements IControl{
 		getStepOff().add(stepMain);//将起点加入关闭列表
 		
 		//与地图的碰撞检测,将碰撞不通过的加入关闭列表
-		for (int i = 0; i <getStepOn().size() ; i++) {
-			if (!TiledMapSystem.passEnble(getStepOn().get(i).getX(), getStepOn().get(i).getY())) {
-				getStepOff().add(getStepOn().get(i));
+		/* <与地图的碰撞检测>
+		 * 1,算长宽各占几个格子（32px），得到测试点数
+		 * 2，分方向检测各监测点
+		 * */
+		int w=(int)actor.getWidth()/TiledMapSystem.MAP_TILE_WIDTH;
+		int h=(int)actor.getHeight()/TiledMapSystem.MAP_TILE_HEIGHT;
+		if (actor.getWidth()>w*TiledMapSystem.MAP_TILE_WIDTH) {
+			w=w+2;
+		}else {
+			w=w+1;
+		}
+		if (actor.getHeight()>h*TiledMapSystem.MAP_TILE_HEIGHT) {
+			h=h+2;
+		}else {
+			h=h+1;
+		}
+		boolean isPass=true;//是否可通过的标志
+		//检测上
+		for (int i = 0; i < w-1; i++) {
+			if (!TiledMapSystem.passEnble(step1.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, step1.getY()+actor.getHeight())) {
+				getStepOff().add(step1);
+				break;
 			}
 		}
+		if (!TiledMapSystem.passEnble(step1.getX()+actor.getWidth(), step1.getY()+actor.getHeight())) {
+			getStepOff().add(step1);
+		}
+		//检测下
+		for (int i = 0; i < w-1; i++) {
+			if (!TiledMapSystem.passEnble(step2.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, step2.getY())) {
+				getStepOff().add(step2);
+				break;
+			}
+		}
+		if (!TiledMapSystem.passEnble(step2.getX()+actor.getWidth(), step2.getY())) {
+			getStepOff().add(step2);
+		}
+		//检测左
+		for (int i = 0; i < h-1; i++) {
+			if (!TiledMapSystem.passEnble(step3.getX(), step3.getY()+TiledMapSystem.MAP_TILE_HEIGHT*i)) {
+				getStepOff().add(step3);
+				break;
+			}
+		}
+		if (!TiledMapSystem.passEnble(step3.getX(), step3.getY()+actor.getHeight())) {
+			getStepOff().add(step3);
+		}
+		//检测右
+		for (int i = 0; i < h-1; i++) {
+			if (!TiledMapSystem.passEnble(step4.getX()+actor.getWidth(), step4.getY()+TiledMapSystem.MAP_TILE_HEIGHT*i)) {
+				getStepOff().add(step4);
+				break;
+			}
+		}
+		if (!TiledMapSystem.passEnble(step4.getX()+actor.getWidth(), step4.getY()+actor.getHeight())) {
+			getStepOff().add(step4);
+		}
+			
+			
 		
 		//去掉开启列表中的关闭列表的项
 		for (int i = getStepOn().size()-1; i >=0 ; i--) {
