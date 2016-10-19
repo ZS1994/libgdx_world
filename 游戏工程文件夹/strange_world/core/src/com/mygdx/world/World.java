@@ -53,17 +53,16 @@ public class World {
 		//---------各系统初始化---------
 		TiledMapSystem.initialize(map);
 		//-------主角----------
-		h=new MainActor(200,200,this);
+		h=new MainActor(400,160,this);
 		stage.addActor(h);
 		h.getControls().add(new AnimationControl(h));
 		h.getControls().add(new ButtonControl(h));
 		h.getControls().add(new CollisionControl(h));
 		h.getControls().add(new MoveControl(h));
 		//---------狗----------------
-		Dog dog=new Dog(500, 600, this);
+		Dog dog=new Dog(600, 600, this);
 		stage.addActor(dog);
 		dog.getControls().add(new AnimationControl(dog));
-//		new Pathfind(dog, h);
 		dog.getControls().add(new Pathfind(dog, h));
 		dog.getControls().add(new CollisionControl(dog));
 		dog.getControls().add(new MoveControl(dog));
@@ -71,8 +70,6 @@ public class World {
 		fps=new Fps(h,stage);
 		stage.addActor(fps);
 		Gdx.input.setInputProcessor(stage);
-		
-		System.out.println(TiledMapSystem.passEnble(500f, 512f));
 	}
 	
 	

@@ -10,6 +10,12 @@ import com.mygdx.world.TiledMapSystem;
 public class CollisionControl implements IControl{
 
 	private BaseActor actor;
+	private int isCling=0;
+	
+	public static final int CLING_NO=0;
+	public static final int CLING_YES=1;
+	
+	
 	
 	
 	public BaseActor getActor() {
@@ -27,7 +33,6 @@ public class CollisionControl implements IControl{
 	
 	@Override
 	public void initialize() {
-		// TODO Auto-generated method stub
 		
 	}
 

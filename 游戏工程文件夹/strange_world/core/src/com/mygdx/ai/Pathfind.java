@@ -61,10 +61,11 @@ public class Pathfind implements IControl{
 		this.y = actorStart.getY();
 		this.xend = actorEnd.getX();
 		this.yend = actorEnd.getY();
-		stepNow=new Step(actorStart.getWidth(), actorStart.getHeight(), actorStart.getX(), actorStart.getY());
+		stepNow=new Step(TiledMapSystem.MAP_TILE_WIDTH, TiledMapSystem.MAP_TILE_HEIGHT, actorStart.getX(), actorStart.getY());
 		assembly(stepNow);
 //		tell(getStepOn().get(0));
 //		tell2(stepNow);
+		/*
 		System.out.println("实际路径————————————————————————");
 		for (int i = 0; i < str.length; i++) {
 			for (int j = 0; j < str[i].length; j++) {
@@ -95,6 +96,7 @@ public class Pathfind implements IControl{
 			}
 			System.out.println();
 		}
+		*/
 	}
 	
 	
@@ -104,84 +106,67 @@ public class Pathfind implements IControl{
 	 * @param stepMain
 	 */
 	private void assembly (Step stepMain) {
-		Step steptmp=null;
-		if (stepMain==null){
+		//当到达了终点时停止
+		if(Transform.xToxIndex(stepMain.getX())==Transform.xToxIndex(xend) && Transform.xToxIndex(stepMain.getY())==Transform.xToxIndex(yend)) {
 			return;
-		}else {
-			//当到达了终点时停止
-			if( stepMain.getX()>actorEnd.getX()-actor.getSpeed() &&
-				stepMain.getX()<actorEnd.getX()+actor.getSpeed() &&
-				stepMain.getY()>actorEnd.getY()-actor.getSpeed() &&
-				stepMain.getY()<actorEnd.getY()+actor.getSpeed()
-				) {
-				return;
-			}
-			
-			Step step1=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()+actor.getSpeed());
-			Step step2=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()-actor.getSpeed());
-			Step step3=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()-actor.getSpeed(), stepMain.getY());
-			Step step4=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()+actor.getSpeed(), stepMain.getY());
-			
-			getStepOn().add(step1);
-			getStepOn().add(step2);
-			getStepOn().add(step3);
-			getStepOn().add(step4);
-			
-			getStepOff().add(stepMain);//将起点加入关闭列表
-			
-			//去掉父节点
-//			if (stepMain.getStepParent()!=null) {
-//				for (int i = getStepOn().size()-1; i >= 0; i--) {
-//					if (stepMain.getStepParent().getX()==getStepOn().get(i).getX() && stepMain.getStepParent().getY()==getStepOn().get(i).getY()) {
-//						getStepOn().remove(i);
-//					}
-//				}
-//			}
-			
-			//与地图的碰撞检测,将碰撞不通过的加入关闭列表
-			for (int i = 0; i <getStepOn().size() ; i++) {
-				if (!TiledMapSystem.passEnble(getStepOn().get(i).getX(), getStepOn().get(i).getY())) {
-					getStepOff().add(getStepOn().get(i));
-				}
-			}
-			
-			//去掉开启列表中的关闭列表的项
-			for (int i = getStepOn().size()-1; i >=0 ; i--) {
-				for (int j = 0; j < getStepOff().size(); j++) {
-					if (getStepOn().get(i).getX()==getStepOff().get(j).getX() && getStepOn().get(i).getY()==getStepOff().get(j).getY()) {
-						getStepOn().remove(i);
-						break;
-					}
-				}
-			}
-			
-			
-			//计算f，选择f最小的，从开启列表中去掉大的，其余的加入关闭列表，开启列表就剩下最小的那个了
-			for (int i = getStepOn().size()-1; i >0; i--) {
-				float h1=Math.abs(getStepOn().get(i).getX()-xend)+Math.abs(getStepOn().get(i).getY()-yend);
-				float h2=Math.abs(getStepOn().get(i-1).getX()-xend)+Math.abs(getStepOn().get(i-1).getY()-yend);
-				float g1=Math.abs(getStepOn().get(i).getX()-x)+Math.abs(getStepOn().get(i).getY()-y);
-				float g2=Math.abs(getStepOn().get(i-1).getX()-x)+Math.abs(getStepOn().get(i-1).getY()-y);
-				float f1=h1+g1*100;
-				float f2=h2+g2*100;
-				if (f1>=f2) { 
-					getStepOff().add(getStepOn().get(i));
-					getStepOn().remove(getStepOn().get(i));
-				}else {
-					getStepOff().add(getStepOn().get(i-1));
-					getStepOn().remove(getStepOn().get(i-1));
-				}
-			}
-			
-			//从开启列表中拿出剩下的，重新从这个再来处理
-			if (getStepOn().size()>0) {
-				steptmp=getStepOn().get(0);
-				stepMain.setStepChild(steptmp);
-				steptmp.setStepParent(stepMain);
+		}
+		
+		Step step1=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()+stepMain.getH());
+		Step step2=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()-stepMain.getH());
+		Step step3=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()-stepMain.getW(), stepMain.getY());
+		Step step4=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()+stepMain.getW(), stepMain.getY());
+		
+		getStepOn().add(step1);
+		getStepOn().add(step2);
+		getStepOn().add(step3);    
+		getStepOn().add(step4);
+		
+		getStepOff().add(stepMain);//将起点加入关闭列表
+		
+		//与地图的碰撞检测,将碰撞不通过的加入关闭列表
+		for (int i = 0; i <getStepOn().size() ; i++) {
+			if (!TiledMapSystem.passEnble(getStepOn().get(i).getX(), getStepOn().get(i).getY())) {
+				getStepOff().add(getStepOn().get(i));
 			}
 		}
-//		System.out.println(steptmp.getX()+"  "+steptmp.getY());
-		assembly(steptmp);
+		
+		//去掉开启列表中的关闭列表的项
+		for (int i = getStepOn().size()-1; i >=0 ; i--) {
+			for (int j = 0; j < getStepOff().size(); j++) {
+				if (getStepOn().get(i).getX()==getStepOff().get(j).getX() && getStepOn().get(i).getY()==getStepOff().get(j).getY()) {
+					getStepOn().remove(i);
+					break;
+				}
+			}
+		}
+		
+		
+		//计算f，选择f最小的，从开启列表中去掉大的，其余的加入关闭列表，开启列表就剩下最小的那个了
+		for (int i = getStepOn().size()-1; i >0; i--) {
+			float h1=Transform.xToxIndex(Math.abs(getStepOn().get(i).getX()-xend))+Transform.xToxIndex(Math.abs(getStepOn().get(i).getY()-yend));
+			float h2=Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getX()-xend))+Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getY()-yend));
+			float g1=Transform.xToxIndex(Math.abs(getStepOn().get(i).getX()-x))+Transform.xToxIndex(Math.abs(getStepOn().get(i).getY()-y));
+			float g2=Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getX()-x))+Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getY()-y));
+			float f1=h1+g1;
+			float f2=h2+g2;
+			if (h1>h2) { 
+				getStepOff().add(getStepOn().get(i));
+				getStepOn().remove(getStepOn().get(i));
+			}else {
+				getStepOff().add(getStepOn().get(i-1));
+				getStepOn().remove(getStepOn().get(i-1));
+			}
+		}
+		
+		//从开启列表中拿出剩下的，重新从这个再来处理
+		if (getStepOn().size()>0) {
+			Step steptmp=getStepOn().get(0);
+			stepMain.setStepChild(steptmp);
+			steptmp.setStepParent(stepMain);
+			assembly(steptmp);
+		}else {
+//			System.out.println("111111111111111111111--->>"+getStepOn().size()+"  "+stepMain.getX()+","+stepMain.getY());
+		}
 	}
 	
 	
@@ -191,17 +176,16 @@ public class Pathfind implements IControl{
 	 * @param stepMain
 	 */
 	public void update() {
-		/*
-		 */
 		Step steptmp=stepNow.getStepChild();
 		if (steptmp!=null) {
 //			System.out.println("actor:"+actor.getX()+" "+actor.getY());
-//			System.out.println("steptmp:"+steptmp.getX()+" "+steptmp.getY());
 //			System.out.println("stepNow:"+stepNow.getX()+" "+stepNow.getY());
 //			System.out.println("state:"+actor.getState());
+//			System.out.println("steptmp:"+steptmp.getX()+" "+steptmp.getY());
 //			System.out.println("------------------------------");
 			if (actor.getX()==steptmp.getX() && actor.getY()==steptmp.getY()) {
 				stepNow=steptmp;
+				actor.setState(MoveControl.STATE_WAIT);
 				return;
 			}else {
 				if (steptmp.getX()<stepNow.getX()) {//往左
@@ -219,8 +203,6 @@ public class Pathfind implements IControl{
 		}else {
 			actor.setState(MoveControl.STATE_WAIT);
 		}
-//		actor.setState(MoveControl.STATE_LEFT);  
-		
 	}
 	
 	@Override
