@@ -53,14 +53,14 @@ public class World {
 		//---------各系统初始化---------
 		TiledMapSystem.initialize(map);
 		//-------主角----------
-		h=new MainActor(400,160,this);
+		h=new MainActor(600,160,this);
 		stage.addActor(h);
 		h.getControls().add(new AnimationControl(h));
 		h.getControls().add(new ButtonControl(h));
 		h.getControls().add(new CollisionControl(h));
 		h.getControls().add(new MoveControl(h));
 		//---------狗----------------
-		Dog dog=new Dog(600, 600, this);
+		Dog dog=new Dog(1000, 4000, this);
 		stage.addActor(dog);
 		dog.getControls().add(new AnimationControl(dog));
 		dog.getControls().add(new Pathfind(dog, h));

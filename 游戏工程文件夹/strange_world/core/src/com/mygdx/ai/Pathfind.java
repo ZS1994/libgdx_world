@@ -15,9 +15,7 @@ import com.mygdx.world.TiledMapSystem;
  *2016年10月17日17:51:33
  */
 public class Pathfind implements IControl{
-	/*
-	 * f=h+g。一定相等了，因为只能上下左右移动并且速度都为speed，找h最小的就行了。
-	 */
+	
 	
 	private BaseActor actorEnd;
 	private BaseActor actor;
@@ -29,7 +27,9 @@ public class Pathfind implements IControl{
 	private List<Step> stepOn=new ArrayList<Step>();//开启列表
 	private List<Step> stepOff=new ArrayList<Step>();//关闭列表
 	//测试用
-	String[][] str=new String[30][30];
+	String[][] str=new String[100][100];
+	//定时器
+	float time1,time2;
 	
 	
 	public List<Step> getStepOn() {
@@ -57,44 +57,7 @@ public class Pathfind implements IControl{
 	public Pathfind(BaseActor actorStart,BaseActor actorEnd) {
 		this.actor = actorStart;
 		this.actorEnd=actorEnd;
-		this.x = actorStart.getX();
-		this.y = actorStart.getY();
-		this.xend = actorEnd.getX();
-		this.yend = actorEnd.getY();
-		stepNow=new Step(TiledMapSystem.MAP_TILE_WIDTH, TiledMapSystem.MAP_TILE_HEIGHT, actorStart.getX(), actorStart.getY());
-		assembly(stepNow);
-//		tell(getStepOn().get(0));
-//		tell2(stepNow);
-		System.out.println("实际路径————————————————————————");
-		for (int i = 0; i < str.length; i++) {
-			for (int j = 0; j < str[i].length; j++) {
-				str[i][j]="◇";
-			}
-		}
-		tell3(stepNow);
-		str[Transform.xToxIndex(y)][Transform.xToxIndex(x)]="★";
-		str[Transform.xToxIndex(yend)][Transform.xToxIndex(xend)]="☆";
-		for (int i = str.length-1; i > 0; i--) {
-			for (int j = 0; j < str[i].length; j++) {
-				System.out.print(str[i][j]);
-			}
-			System.out.println();
-		}
-		System.out.println("关闭列表————————————————————————");
-		for (int i = 0; i < str.length; i++) {
-			for (int j = 0; j < str[i].length; j++) {
-				str[i][j]="◇";
-			}
-		}
-		for (int i = 0; i < getStepOff().size(); i++) {
-			str[Transform.xToxIndex(getStepOff().get(i).getY())][Transform.xToxIndex(getStepOff().get(i).getX())]="◆";
-		}
-		for (int i = str.length-1; i > 0; i--) {
-			for (int j = 0; j < str[i].length; j++) {
-				System.out.print(str[i][j]);
-			}
-			System.out.println();
-		}
+		initialize();
 	}
 	
 	
@@ -192,8 +155,11 @@ public class Pathfind implements IControl{
 			}
 		}
 		
-		
+		/*
+		 * f=h+g。一定相等了，因为只能上下左右移动并且速度都为speed，找h最小的就行了。
+		 */
 		//计算f，选择f最小的，从开启列表中去掉大的，其余的加入关闭列表，开启列表就剩下最小的那个了
+		//现在是比h，找h小的成功了
 		for (int i = getStepOn().size()-1; i >0; i--) {
 			float h1=Transform.xToxIndex(Math.abs(getStepOn().get(i).getX()-xend))+Transform.xToxIndex(Math.abs(getStepOn().get(i).getY()-yend));
 			float h2=Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getX()-xend))+Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getY()-yend));
@@ -216,8 +182,6 @@ public class Pathfind implements IControl{
 			stepMain.setStepChild(steptmp);
 			steptmp.setStepParent(stepMain);
 			assembly(steptmp);
-		}else {
-//			System.out.println("111111111111111111111--->>"+getStepOn().size()+"  "+stepMain.getX()+","+stepMain.getY());
 		}
 	}
 	
@@ -254,12 +218,32 @@ public class Pathfind implements IControl{
 			}
 		}else {
 			actor.setState(MoveControl.STATE_WAIT);
+			if (time1==0) {
+				time1=actor.getStateTime();
+			}
+			time2=actor.getStateTime();
+			if (time2-time1>=5) {
+				time1=0;
+				time2=0;
+				initialize();
+			}
+			
 		}
 	}
 	
 	@Override
 	public void initialize() {
-		
+		getStepOn().clear();
+		getStepOff().clear();
+		this.x = actor.getX();
+		this.y = actor.getY();
+		this.xend = actorEnd.getX();
+		this.yend = actorEnd.getY();
+		stepNow=new Step(TiledMapSystem.MAP_TILE_WIDTH, TiledMapSystem.MAP_TILE_HEIGHT, actor.getX(), actor.getY());
+		assembly(stepNow);
+//		tell(getStepOn().get(0));
+//		tell2(stepNow);
+//		tell4();
 	}
 	
 	
@@ -285,5 +269,40 @@ public class Pathfind implements IControl{
 			tell3(s.getStepChild());
 		}
 	}
+	
+	private void tell4(){
+		System.out.println("实际路径————————————————————————");
+		for (int i = 0; i < str.length; i++) {
+			for (int j = 0; j < str[i].length; j++) {
+				str[i][j]="◇";
+			}
+		}
+		tell3(stepNow);
+		str[Transform.xToxIndex(y)][Transform.xToxIndex(x)]="★";
+		str[Transform.xToxIndex(yend)][Transform.xToxIndex(xend)]="☆";
+		for (int i = str.length-1; i > 0; i--) {
+			for (int j = 0; j < str[i].length; j++) {
+				System.out.print(str[i][j]);
+			}
+			System.out.println();
+		}
+		System.out.println("关闭列表————————————————————————");
+		for (int i = 0; i < str.length; i++) {
+			for (int j = 0; j < str[i].length; j++) {
+				str[i][j]="◇";
+			}
+		}
+		for (int i = 0; i < getStepOff().size(); i++) {
+			str[Transform.xToxIndex(getStepOff().get(i).getY())][Transform.xToxIndex(getStepOff().get(i).getX())]="◆";
+		}
+		for (int i = str.length-1; i > 0; i--) {
+			for (int j = 0; j < str[i].length; j++) {
+				System.out.print(str[i][j]);
+			}
+			System.out.println();
+		}
+	}
+	
+	
 	
 }
