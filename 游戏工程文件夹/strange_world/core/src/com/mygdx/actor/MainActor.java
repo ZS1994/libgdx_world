@@ -1,7 +1,7 @@
 package com.mygdx.actor;
 
 import com.mygdx.control.AnimationControl;
-import com.mygdx.control.ButtonControl;
+import com.mygdx.control.BtnDirectionControl;
 import com.mygdx.control.CollisionControl;
 import com.mygdx.control.MoveControl;
 import com.mygdx.world.World;

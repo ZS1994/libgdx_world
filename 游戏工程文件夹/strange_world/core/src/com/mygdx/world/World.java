@@ -14,7 +14,9 @@ import com.mygdx.actor.Fps;
 import com.mygdx.actor.MainActor;
 import com.mygdx.ai.Pathfind;
 import com.mygdx.control.AnimationControl;
-import com.mygdx.control.ButtonControl;
+import com.mygdx.control.BtnAddControl;
+import com.mygdx.control.BtnDeleteControl;
+import com.mygdx.control.BtnDirectionControl;
 import com.mygdx.control.CollisionControl;
 import com.mygdx.control.MoveControl;
 import com.mygdx.game.MySkin;
@@ -38,8 +40,8 @@ public class World {
 	//----FPS------------
 	private Fps fps;
 	//-----地图的碰撞检测--------------
-	
-	
+	//--------世界的重力------------------
+//	public static float GRAVITY=9.8f;
 	
 	/**
 	 * 世界 2016年10月15日14:05:47
@@ -60,7 +62,9 @@ public class World {
 		h=new MainActor(600,160,this);
 		stage.addActor(h);
 		h.getControls().add(new AnimationControl(h));
-		h.getControls().add(new ButtonControl(h));
+		h.getControls().add(new BtnDirectionControl(h));
+		h.getControls().add(new BtnAddControl(h));
+		h.getControls().add(new BtnDeleteControl(h));
 		h.getControls().add(new CollisionControl(h));
 		h.getControls().add(new MoveControl(h));
 		//---------狗----------------
@@ -116,7 +120,6 @@ public class World {
 		dog.getControls().add(new CollisionControl(dog5));
 		dog.getControls().add(new MoveControl(dog5));
 	}
-	
 	
 	
 	public void updatePosition() {

@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.mygdx.actor.BaseActor;
 import com.mygdx.world.World;
 
-public class ButtonControl implements IControl{
+public class BtnDirectionControl implements IControl{
 
 	private BaseActor actor;
 	private ImageButton btnL,btnR,btnU,btnD;
@@ -22,7 +22,7 @@ public class ButtonControl implements IControl{
 		this.actor = actor;
 	}
 
-	public ButtonControl(BaseActor actor) {
+	public BtnDirectionControl(BaseActor actor) {
 		setActor(actor);
 		initialize();
 	}
