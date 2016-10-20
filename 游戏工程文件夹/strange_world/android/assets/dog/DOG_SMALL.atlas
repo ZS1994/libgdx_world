@@ -1,0 +1,33 @@
+
+DOG_SMALL.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+DOG1_SMALL
+  rotate: false
+  xy: 2, 2
+  size: 64, 55
+  orig: 64, 55
+  offset: 0, 0
+  index: -1
+DOG4_SMALL
+  rotate: false
+  xy: 2, 2
+  size: 64, 55
+  orig: 64, 55
+  offset: 0, 0
+  index: -1
+DOG2_SMALL
+  rotate: false
+  xy: 68, 5
+  size: 64, 52
+  orig: 64, 53
+  offset: 0, 1
+  index: -1
+DOG3_SMALL
+  rotate: false
+  xy: 134, 7
+  size: 64, 50
+  orig: 64, 50
+  offset: 0, 0
+  index: -1
