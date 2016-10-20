@@ -101,6 +101,12 @@ public class BaseActor extends Actor{
 	public void setType(String type) {
 		this.type = type;
 	}
+	public float getFrameDuration() {
+		return frameDuration;
+	}
+	public void setFrameDuration(float frameDuration) {
+		this.frameDuration = frameDuration;
+	}
 	//-------------------------
 	
 	

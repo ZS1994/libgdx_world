@@ -206,8 +206,10 @@ public class Pathfind implements IControl{
 			}else {
 				if (steptmp.getX()<stepNow.getX()) {//往左
 					actor.setState(MoveControl.STATE_LEFT);
+					actor.setStateLast(MoveControl.STATE_LEFT);
 				}else if (steptmp.getX()>stepNow.getX()) {
 					actor.setState(MoveControl.STATE_RIGHT);
+					actor.setStateLast(MoveControl.STATE_RIGHT);
 				}else if (steptmp.getY()>stepNow.getY()) {
 					actor.setState(MoveControl.STATE_UP);
 				}else if (steptmp.getY()<stepNow.getY()) {
