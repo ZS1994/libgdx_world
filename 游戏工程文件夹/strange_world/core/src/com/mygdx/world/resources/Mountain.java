@@ -1,35 +1,30 @@
 package com.mygdx.world.resources;
 
-import java.util.Map;
-
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 
-/**张顺 2016-10-17
- * 水素材
- * @author it023
- */
-public class Water {
+public class Mountain {
+	
 	private static Cell[][] cells;//所需的cell容器
 	private static TiledMapTileLayer layer; 
 	
+
 	
 	
 	public static Cell[][] getCells() {
 		return cells;
 	}
 	public static void setCells(Cell[][] cells) {
-		Water.cells = cells;
+		Mountain.cells = cells;
 	}
 	public static TiledMapTileLayer getLayer() {
 		return layer;
 	}
 	public static void setLayer(TiledMapTileLayer layer) {
-		Water.layer = layer;
+		Mountain.layer = layer;
 	}
 
-	
+
 	/**
 	 * 在图层上添加（自己就会显示）
 	 * <br>并添加碰撞检测
@@ -59,8 +54,5 @@ public class Water {
 			}
 		}
 	}
-	
-	
-	
 	
 }

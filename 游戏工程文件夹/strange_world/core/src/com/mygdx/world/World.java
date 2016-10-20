@@ -18,6 +18,8 @@ import com.mygdx.control.ButtonControl;
 import com.mygdx.control.CollisionControl;
 import com.mygdx.control.MoveControl;
 import com.mygdx.game.MySkin;
+import com.mygdx.world.resources.Mountain;
+import com.mygdx.world.resources.Water;
 
 public class World {
 	
@@ -51,7 +53,9 @@ public class World {
 		cam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		stage=new Stage(new ScalingViewport(Scaling.stretch, 1920, 1080,cam));
 		//---------各系统初始化---------
-		TiledMapSystem.initialize(map);
+		//-----地图系统------
+		TiledMapSystem.setMap(map);
+		TiledMapSystem.initialize();
 		//-------主角----------
 		h=new MainActor(600,160,this);
 		stage.addActor(h);
@@ -60,6 +64,20 @@ public class World {
 		h.getControls().add(new CollisionControl(h));
 		h.getControls().add(new MoveControl(h));
 		//---------狗----------------
+		addDogs();
+		//----------fps----------
+		fps=new Fps(h,stage);
+		stage.addActor(fps);
+		/*
+		----------测试添加组件-----成功-------
+		Mountain.add(6, 6);
+		Water.add(7, 7);
+		TiledMapSystem.initialize();
+		*/
+		Gdx.input.setInputProcessor(stage);
+	}
+	
+	private void addDogs() {
 		Dog dog=new Dog(1000, 4000, this);
 		stage.addActor(dog);
 		dog.getControls().add(new AnimationControl(dog));
@@ -97,13 +115,8 @@ public class World {
 		dog.getControls().add(new Pathfind(dog5, h));
 		dog.getControls().add(new CollisionControl(dog5));
 		dog.getControls().add(new MoveControl(dog5));
-		
-		
-		//----------fps----------
-		fps=new Fps(h,stage);
-		stage.addActor(fps);
-		Gdx.input.setInputProcessor(stage);
 	}
+	
 	
 	
 	public void updatePosition() {

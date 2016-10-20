@@ -9,6 +9,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.mygdx.world.collision.Barrier;
+import com.mygdx.world.resources.Mountain;
 import com.mygdx.world.resources.Water;
 
 public class TiledMapSystem {
@@ -18,16 +19,29 @@ public class TiledMapSystem {
 	public static final int MAP_WIDTH_INDEX = 300;
 	public static final int MAP_HEIGHT_INDEX = 200;
 	private static Barrier[][] barriers=new Barrier[MAP_HEIGHT_INDEX][MAP_WIDTH_INDEX];;
+	private static TiledMap map;
 	
 	
-	public static void initialize(TiledMap map) {
+	public static TiledMap getMap() {
+		return map;
+	}
+	public static void setMap(TiledMap map) {
+		TiledMapSystem.map = map;
+	}
+
+
+	public static void initialize() {
 		MapLayers layers = map.getLayers();
         for(MapLayer layer : layers) {
            //首先是水
            if(layer.getName().equals("water")){
                if(layer instanceof TiledMapTileLayer){
                    TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;   
-                   Water.setLayer(tileLayer);//水在这里初始化图层
+                   //水在这里初始化图层
+                   Water.setLayer(tileLayer);
+                   Cell[][] tmpCells=new Cell[1][1];
+                   tmpCells[0][0]=tileLayer.getCell(0, 0);
+                   Water.setCells(tmpCells);
                    //j为高（行） i为宽（列）
                    for(int j =0 ;j<tileLayer.getHeight();j++){
                        for(int i=0;i < tileLayer.getWidth();i++){
@@ -50,6 +64,11 @@ public class TiledMapSystem {
            else if(layer.getName().equals("mountain")){//山
                if(layer instanceof TiledMapTileLayer){
                    TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;    
+                   //山在这里初始化
+                   Mountain.setLayer(tileLayer);
+                   Cell[][] tmpCells=new Cell[1][1];
+                   tmpCells[0][0]=tileLayer.getCell(0, 0);
+                   Mountain.setCells(tmpCells);
                    //j为高（行） i为宽（列）
                    for(int j =0 ;j<tileLayer.getHeight();j++){
                        for(int i=0;i < tileLayer.getWidth();i++){
@@ -65,18 +84,6 @@ public class TiledMapSystem {
                            }
                        }
                    }        
-               }
-           }
-           /*
-            */
-           else if(layer.getName().equals("material")){//初始化地图各组件
-               if(layer instanceof TiledMapTileLayer){
-                   TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;   
-                   Cell[][] tmpCells1=new Cell[1][1];
-                   tmpCells1[0][0]=tileLayer.getCell(0, 2);
-                   Water.setCells(tmpCells1);
-                   
-                   //未完待续...
                }
            }
            //未完待续...
