@@ -12,7 +12,6 @@ public class MoveControl implements IControl{
 	public static final int STATE_WAIT=0;
 	public static final int STATE_LEFT=1;
 	public static final int STATE_RIGHT=2;
-	public static final int STATE_JUMP=3;
 	
 	public static final int SPEED_0=0;
 	public static final int SPEED_1=8;
@@ -53,9 +52,6 @@ public class MoveControl implements IControl{
 			break;
 		case STATE_RIGHT:
 			actor.setX(actor.getX()+actor.getSpeed());
-			break;
-		case STATE_JUMP:
-			actor.setY(actor.getY()-actor.getFrameDuration()*World.GRAVITY*World.GRAVITY);
 			break;
 		default:
 			break;

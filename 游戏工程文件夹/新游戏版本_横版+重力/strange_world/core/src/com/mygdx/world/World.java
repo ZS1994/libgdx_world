@@ -204,8 +204,14 @@ public class World {
 				actor.setY(targety);
 			}
 		}else {
-			actor.setTime1(actor.getStateTime());
-			actor.setSpeedy(0);
+			if (actor.getSpeedy()>0) {
+				actor.setTime2(actor.getStateTime());
+				float time=actor.getTime2()-actor.getTime1();
+				actor.setY(actor.getY()+actor.getSpeedy()*time*time);
+			}else {
+				actor.setTime1(actor.getStateTime());
+			}
+//			actor.setSpeedy(0);
 		}
 //		System.out.println("--------------------------");
 //		System.out.println("speedy:"+actor.getSpeedy());

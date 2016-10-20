@@ -93,7 +93,29 @@ public class CollisionControl implements IControl{
 		default:
 			break;
 		}
-		
+		boolean isPass2=true;//垂直方向的是否通过的标志
+		//检测垂直方向的碰撞检测
+		if (actor.getSpeedy()>0) {
+			//往上的下一步头顶的检测点点的y坐标
+			float time=actor.getTime2()-actor.getTime1();
+			float ytmp=actor.getY()+actor.getSpeedy()*time*time+actor.getHeight();
+			for (int i = 0; i < w-1; i++) {
+				if (!TiledMapSystem.passEnble(actor.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, ytmp)) {
+					isPass2=false;
+					break;
+				}
+			}
+			if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth(), ytmp)) {
+				isPass2=false;
+			}
+			if (!isPass2) {
+				actor.setSpeedy(0);
+				//贴紧边缘算法
+				float y=((int) (ytmp/TiledMapSystem.MAP_TILE_HEIGHT))*TiledMapSystem.MAP_TILE_HEIGHT-actor.getHeight();
+				actor.setY(y);
+			}
+			
+		}
 		
 		
 	}
