@@ -21,14 +21,12 @@ public class BaseActor extends Actor{
 	private int state=MoveControl.STATE_WAIT;
 	private int stateLast=MoveControl.STATE_LEFT;//上一个状态只有左右
 	private float speed=MoveControl.SPEED_1;
-	private float speedy=0;
+	private float speedy=0f;
 	private float stateTime=0;
 	private float frameDuration=0.01f;
 	private TextureRegion drawRegion=null;//要绘制的图形
 	private List<IControl> controls=new ArrayList<IControl>();//控制器们;
 	private World world;//世界
-	//---------备用计时器------------------------
-//	private float time1,time2;
 	//------------跳跃标志----------
 	private boolean jump=false;
 	

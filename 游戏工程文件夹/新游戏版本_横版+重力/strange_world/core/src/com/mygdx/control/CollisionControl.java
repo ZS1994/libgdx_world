@@ -60,12 +60,12 @@ public class CollisionControl implements IControl{
 		switch (actor.getState()) {
 		case MoveControl.STATE_LEFT:
 			for (int i = 0; i < h-1; i++) {
-				if (!TiledMapSystem.passEnble(actor.getX()-actor.getSpeed(), actor.getY()+TiledMapSystem.MAP_TILE_HEIGHT*i)) {
+				if (!TiledMapSystem.passEnble(actor.getX()-actor.getSpeed()-1, actor.getY()+TiledMapSystem.MAP_TILE_HEIGHT*i)) {
 					isPass=false;
 					break;
 				}
 			}
-			if (!TiledMapSystem.passEnble(actor.getX()-actor.getSpeed(), actor.getY()+actor.getHeight())) {
+			if (!TiledMapSystem.passEnble(actor.getX()-actor.getSpeed()-1, actor.getY()+actor.getHeight())) {
 				isPass=false;
 			}
 			if (isPass==false) {
@@ -73,16 +73,18 @@ public class CollisionControl implements IControl{
 				//贴紧边缘算法
 				float x=((int) ((actor.getX()-actor.getSpeed())/TiledMapSystem.MAP_TILE_WIDTH))*TiledMapSystem.MAP_TILE_WIDTH;
 				actor.setX(x);
+			}else {
+				actor.setSpeed(MoveControl.SPEED_1);
 			}
 			break;
 		case MoveControl.STATE_RIGHT:
 			for (int i = 0; i < h-1; i++) {
-				if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth()+actor.getSpeed(), actor.getY()+TiledMapSystem.MAP_TILE_HEIGHT*i)) {
+				if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth()+actor.getSpeed()+1, actor.getY()+TiledMapSystem.MAP_TILE_HEIGHT*i)) {
 					isPass=false;
 					break;
 				}
 			}
-			if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth()+actor.getSpeed(), actor.getY()+actor.getHeight())) {
+			if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth()+actor.getSpeed()+1, actor.getY()+actor.getHeight())) {
 				isPass=false;
 			}
 			if (isPass==false) {
@@ -90,10 +92,16 @@ public class CollisionControl implements IControl{
 				//贴紧边缘算法
 				float x=((int) ((actor.getX()+actor.getWidth()+actor.getSpeed())/TiledMapSystem.MAP_TILE_WIDTH)+1)*TiledMapSystem.MAP_TILE_WIDTH-actor.getWidth()-1;
 				actor.setX(x);
+			}else {
+				actor.setSpeed(MoveControl.SPEED_1);
 			}		
 			break;
 		default:
 			break;
+		}
+		//最大下降速度限制
+		if (actor.getSpeedy()<=World.SPEED_DOWN_MAX) {
+			actor.setSpeedy(World.SPEED_DOWN_MAX);
 		}
 		//检测垂直方向的碰撞检测+重力系统
 		boolean isPass2=true;//垂直方向的是否通过的标志
@@ -114,9 +122,9 @@ public class CollisionControl implements IControl{
 				xtmp=actor.getX()+actor.getWidth();
 			}
 			if (!isPass2) {
-				actor.setSpeedy(0);
 				//贴紧边缘算法
 				//需要一个找边缘的算法
+				actor.setSpeedy(0);
 				float y=((int) ((ytmp+actor.getHeight())/TiledMapSystem.MAP_TILE_HEIGHT))*TiledMapSystem.MAP_TILE_HEIGHT;
 				for (int i = 0;TiledMapSystem.passEnble(xtmp, y)==false ; i++) {
 					y=y-TiledMapSystem.MAP_TILE_HEIGHT*i;

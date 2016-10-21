@@ -45,7 +45,7 @@ public class World {
 	//-----地图的碰撞检测--------------
 	//--------世界的重力------------------
 	public static float GRAVITY=-10f;
-	public static float SPEED_DOWN_MAX=-15f;//下降速度临界点
+	public static float SPEED_DOWN_MAX=-100f;//下降速度临界点
 	
 	/**
 	 * 世界 2016年10月15日14:05:47
@@ -63,7 +63,7 @@ public class World {
 		TiledMapSystem.setMap(map);
 		TiledMapSystem.initialize();
 		//-------主角----------
-		h=new MainActor(600,1000,this);
+		h=new MainActor(300,6000,this);
 		stage.addActor(h);
 		h.getControls().add(new AnimationControl(h));
 		h.getControls().add(new BtnDirectionControl(h));
