@@ -28,25 +28,19 @@ public class BaseActor extends Actor{
 	private List<IControl> controls=new ArrayList<IControl>();//控制器们;
 	private World world;//世界
 	//---------备用计时器------------------------
-	private float time1,time2;
-	
-	
+//	private float time1,time2;
+	//------------跳跃标志----------
+	private boolean jump=false;
 	
 	//-------------------------
-	public float getTime1() {
-		return time1;
-	}
-	public void setTime1(float time1) {
-		this.time1 = time1;
-	}
-	public float getTime2() {
-		return time2;
-	}
-	public void setTime2(float time2) {
-		this.time2 = time2;
-	}
 	public World getWorld() {
 		return world;
+	}
+	public boolean isJump() {
+		return jump;
+	}
+	public void setJump(boolean jump) {
+		this.jump = jump;
 	}
 	public float getSpeedy() {
 		return speedy;
@@ -176,7 +170,6 @@ public class BaseActor extends Actor{
 			batch.draw(drawRegion, getX(), getY());
 		}
 		update();
-		world.gravity(this);
 	}
 	
 	private void update() {

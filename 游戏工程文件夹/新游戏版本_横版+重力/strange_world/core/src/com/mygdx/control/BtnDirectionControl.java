@@ -100,8 +100,8 @@ public class BtnDirectionControl implements IControl{
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y,
 					int pointer, int button) {
-				if (actor.getSpeedy()==0) {
-					actor.setSpeedy(60);
+				if (!actor.isJump()) {
+					actor.setSpeedy(100);
 				}
 				return true;
 			}

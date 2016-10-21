@@ -16,13 +16,12 @@ import com.mygdx.world.World;
 
 public class MyGdxGame extends ApplicationAdapter {
 	
-	World world;
-//	SpriteBatch batch;
+	private World world;
+	public static final float TIME_INTERVAL=0.2f;//这个游戏的时间间隔
 	
 	@Override
 	public void create () {
 		world=new World();
-//		batch=new SpriteBatch();
 	}
 
 	@Override
@@ -30,11 +29,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		world.draw();
-		/*
-		batch.begin();
-		batch.draw(World.skin.get("按钮素材", Texture.class), 0, 0);
-		batch.end();
-		*/
 	}
 	
 	@Override

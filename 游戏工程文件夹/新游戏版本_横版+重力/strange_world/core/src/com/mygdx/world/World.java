@@ -20,6 +20,7 @@ import com.mygdx.control.BtnDeleteControl;
 import com.mygdx.control.BtnDirectionControl;
 import com.mygdx.control.CollisionControl;
 import com.mygdx.control.MoveControl;
+import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.MySkin;
 import com.mygdx.world.resources.Mountain;
 import com.mygdx.world.resources.Water;
@@ -43,7 +44,7 @@ public class World {
 	//-----地图的碰撞检测--------------
 	//--------世界的重力------------------
 	public static float GRAVITY=-10f;
-	public static float SPEED_DOWN_MAX=-50f;//下降速度临界点
+	public static float SPEED_DOWN_MAX=-15f;//下降速度临界点
 	
 	/**
 	 * 世界 2016年10月15日14:05:47
@@ -140,84 +141,6 @@ public class World {
 		stage.draw();
 	}
 	
-	
-	/**
-	 * 重力系统
-	 * @param actor
-	 */
-	public void gravity(BaseActor actor) {
-		//--------------------
-		int w=(int)actor.getWidth()/TiledMapSystem.MAP_TILE_WIDTH;
-		if (actor.getWidth()>w*TiledMapSystem.MAP_TILE_WIDTH) {
-			w=w+2;
-		}else {
-			w=w+1;
-		}
-		boolean isPass=true;//是否可通过的标志
-		boolean isPass2=true;//是否可通过的标志2
-		for (int i = 0; i < w-1; i++) {
-			if (!TiledMapSystem.passEnble(actor.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, actor.getY()-1)) {
-				isPass=false;
-				break;
-			}
-		}
-		if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth(), actor.getY()-1)) {
-			isPass=false;
-		}
-		if (isPass) {//通过
-			actor.setTime2(actor.getStateTime());
-			float time=actor.getTime2()-actor.getTime1();
-			float tageSpeed=actor.getSpeedy()+World.GRAVITY*time;
-			//防止下降速度大于临界速度
-			if (tageSpeed<=World.SPEED_DOWN_MAX) {
-				tageSpeed=World.SPEED_DOWN_MAX;
-			}
-			actor.setSpeedy(tageSpeed);
-			float targety=(actor.getY()+actor.getSpeedy()*time);//下一步即将到达的位置
-//			System.out.println(time);
-//			System.out.println(actor.getSpeedy());
-			//碰撞检测+贴紧算法
-			float xtmp=0;//碰撞的点
-			for (int i = 0; i < w-1; i++) {
-				if (TiledMapSystem.passEnble(actor.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, targety)==false) {//不通过
-					isPass2=false;
-					xtmp=actor.getX()+TiledMapSystem.MAP_TILE_WIDTH*i;
-					break;
-				}
-			}
-			if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth(), targety)) {
-				isPass=false;
-				xtmp=actor.getX()+actor.getWidth();
-			}
-			if (isPass2==false) {
-				//往上找那个边缘
-				float clingy=((int)(targety/TiledMapSystem.MAP_TILE_HEIGHT))*TiledMapSystem.MAP_TILE_HEIGHT;//贴紧之后的y
-				for (int i = 0; TiledMapSystem.passEnble(xtmp,clingy)==false; i++) {
-					clingy=clingy+TiledMapSystem.MAP_TILE_HEIGHT*i;
-					break;
-				}
-//				System.out.println(xtmp+"  "+clingy+"  "+targety);
-//				System.out.println(TiledMapSystem.passEnble(xtmp,clingy));
-				actor.setY(clingy+TiledMapSystem.MAP_TILE_HEIGHT);
-				actor.setSpeedy(0);
-			}else {
-				actor.setY(targety);
-			}
-		}else {
-			if (actor.getSpeedy()>0) {
-				actor.setTime2(actor.getStateTime());
-				float time=actor.getTime2()-actor.getTime1();
-				actor.setY(actor.getY()+actor.getSpeedy()*time*time);
-			}else {
-				actor.setTime1(actor.getStateTime());
-			}
-//			actor.setSpeedy(0);
-		}
-//		System.out.println("--------------------------");
-//		System.out.println("speedy:"+actor.getSpeedy());
-//		System.out.println("time1:"+actor.getTime1());
-//		System.out.println("time2:"+actor.getTime2());
-	}
 	
 	
 }	

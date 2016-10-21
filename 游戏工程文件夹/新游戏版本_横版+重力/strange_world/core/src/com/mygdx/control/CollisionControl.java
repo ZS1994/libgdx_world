@@ -1,7 +1,9 @@
 package com.mygdx.control;
 
 import com.mygdx.actor.BaseActor;
+import com.mygdx.game.MyGdxGame;
 import com.mygdx.world.TiledMapSystem;
+import com.mygdx.world.World;
 
 /**
  * 碰撞检测控制器
@@ -93,28 +95,70 @@ public class CollisionControl implements IControl{
 		default:
 			break;
 		}
+		//检测垂直方向的碰撞检测+重力系统
 		boolean isPass2=true;//垂直方向的是否通过的标志
-		//检测垂直方向的碰撞检测
-		if (actor.getSpeedy()>0) {
-			//往上的下一步头顶的检测点点的y坐标
-			float time=actor.getTime2()-actor.getTime1();
-			float ytmp=actor.getY()+actor.getSpeedy()*time*time+actor.getHeight();
+		float speedtmp=actor.getSpeedy()+World.GRAVITY*MyGdxGame.TIME_INTERVAL;
+		float ytmp=(actor.getY()+speedtmp*MyGdxGame.TIME_INTERVAL);
+		if (actor.getSpeedy()>0) {//往上跳
+			//往上的头顶的检测点点的y坐标
+			float xtmp=0;//记录碰撞的x坐标
 			for (int i = 0; i < w-1; i++) {
-				if (!TiledMapSystem.passEnble(actor.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, ytmp)) {
+				if (!TiledMapSystem.passEnble(actor.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, ytmp+actor.getHeight())) {
 					isPass2=false;
+					xtmp=actor.getX()+TiledMapSystem.MAP_TILE_WIDTH*i;
 					break;
 				}
 			}
-			if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth(), ytmp)) {
+			if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth(), ytmp+actor.getHeight())) {
 				isPass2=false;
+				xtmp=actor.getX()+actor.getWidth();
 			}
 			if (!isPass2) {
 				actor.setSpeedy(0);
 				//贴紧边缘算法
-				float y=((int) (ytmp/TiledMapSystem.MAP_TILE_HEIGHT))*TiledMapSystem.MAP_TILE_HEIGHT-actor.getHeight();
+				//需要一个找边缘的算法
+				float y=((int) ((ytmp+actor.getHeight())/TiledMapSystem.MAP_TILE_HEIGHT))*TiledMapSystem.MAP_TILE_HEIGHT;
+				for (int i = 0;TiledMapSystem.passEnble(xtmp, y)==false ; i++) {
+					y=y-TiledMapSystem.MAP_TILE_HEIGHT*i;
+				}
+				y=y+TiledMapSystem.MAP_TILE_HEIGHT-actor.getHeight();
+				System.out.println(y);
 				actor.setY(y);
+			}else {
+				actor.setSpeedy(speedtmp);
+				actor.setY(ytmp);
+			}
+			actor.setJump(true);
+		}else if (actor.getSpeedy()<=0) {//往下掉
+			//往下的检测点
+			float xtmp=0;//记录碰撞的x坐标
+			for (int i = 0; i < w-1; i++) {
+				if (!TiledMapSystem.passEnble(actor.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, ytmp)) {
+					isPass2=false;
+					xtmp=actor.getX()+TiledMapSystem.MAP_TILE_WIDTH*i;
+					break;
+				}
+			}
+			if (!TiledMapSystem.passEnble(actor.getX()+actor.getWidth(), ytmp)) {
+				xtmp=actor.getX()+actor.getWidth();
+				isPass2=false;
 			}
 			
+			if (!isPass2) {
+				//贴紧边缘算法
+				float y=((int) (ytmp/TiledMapSystem.MAP_TILE_HEIGHT) +1)*TiledMapSystem.MAP_TILE_HEIGHT;
+				actor.setSpeedy(0);
+				actor.setJump(false);
+				for (int i = 0;TiledMapSystem.passEnble(xtmp, y)==false ; i++) {
+					y=y+TiledMapSystem.MAP_TILE_HEIGHT*i;
+					break;
+				}
+				actor.setY(y);
+			}else {
+				actor.setSpeedy(speedtmp);
+				actor.setJump(true);
+				actor.setY(ytmp);
+			}
 		}
 		
 		
