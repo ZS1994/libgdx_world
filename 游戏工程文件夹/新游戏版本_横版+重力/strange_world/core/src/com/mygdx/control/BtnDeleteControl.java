@@ -79,9 +79,9 @@ public class BtnDeleteControl implements IControl{
 	@Override
 	public void update() {
 		//--------设置成相对位置-----------------
-		float xtmp=getActor().getX()+700;
+		float xtmp=getActor().getX()+500;
 		float ytmp=getActor().getY()-300;
-		btnA.setPosition(xtmp, ytmp-150);
+		btnA.setPosition(xtmp, ytmp-100);
 	}
 	
 	
