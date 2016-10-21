@@ -18,6 +18,7 @@ import com.mygdx.control.AnimationControl;
 import com.mygdx.control.BtnAddControl;
 import com.mygdx.control.BtnDeleteControl;
 import com.mygdx.control.BtnDirectionControl;
+import com.mygdx.control.BtnJumpControl;
 import com.mygdx.control.CollisionControl;
 import com.mygdx.control.MoveControl;
 import com.mygdx.game.MyGdxGame;
@@ -68,6 +69,7 @@ public class World {
 		h.getControls().add(new BtnDirectionControl(h));
 		h.getControls().add(new BtnAddControl(h));
 		h.getControls().add(new BtnDeleteControl(h));
+		h.getControls().add(new BtnJumpControl(h));
 		h.getControls().add(new CollisionControl(h));
 		h.getControls().add(new MoveControl(h));
 		//---------นท----------------
