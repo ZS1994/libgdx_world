@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.mygdx.control.IControl;
@@ -18,6 +19,7 @@ public class BaseActor extends Actor{
 
 	private Animation aniWL,aniWR,aniL,aniR;
 	private String type;
+	private String id;//每个actor的唯一标识
 	private int state=MoveControl.STATE_WAIT;
 	private int stateLast=MoveControl.STATE_LEFT;//上一个状态只有左右
 	private float speed=MoveControl.SPEED_1;
@@ -29,10 +31,26 @@ public class BaseActor extends Actor{
 	private World world;//世界
 	//------------跳跃标志----------
 	private boolean jump=false;
+	//----------矩形,用于判断baseactor之间的碰撞------------
+	private Rectangle rectangle;
+	
+	
 	
 	//-------------------------
 	public World getWorld() {
 		return world;
+	}
+	public Rectangle getRectangle() {
+		return rectangle;
+	}
+	public void setRectangle(Rectangle rectangle) {
+		this.rectangle = rectangle;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
 	}
 	public boolean isJump() {
 		return jump;
@@ -130,13 +148,15 @@ public class BaseActor extends Actor{
 	/**主角  
 	 * <br>张顺  2016年10月15日11:47:25
 	 */
-	public BaseActor(float x,float y,float w,float h,String type,World world) {
+	public BaseActor(float x,float y,float w,float h,String type,String id,World world) {
 		setX(x);
 		setY(y);
 		setWidth(w);
 		setHeight(h);
 		setType(type);
+		setId(id);
 		setWorld(world);
+		rectangle=new Rectangle(getX(), getY(), getWidth(), getHeight());
 	}
 
 	
@@ -178,4 +198,14 @@ public class BaseActor extends Actor{
 		}
 	}
 	
+	/**
+	 * 张顺
+	 * 2016-10-22 16:51:18
+	 * 比较两个baseactor是否一样（通过唯一标示id来确定）
+	 * @param baseActor
+	 * @return
+	 */
+	public boolean equals(BaseActor baseActor) {
+		return this.getId()==baseActor.getId();
+	}
 }

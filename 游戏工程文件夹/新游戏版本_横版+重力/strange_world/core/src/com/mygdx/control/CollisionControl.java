@@ -12,10 +12,6 @@ import com.mygdx.world.World;
 public class CollisionControl implements IControl{
 
 	private BaseActor actor;
-	private int isCling=0;
-	
-	public static final int CLING_NO=0;
-	public static final int CLING_YES=1;
 	
 	
 	
@@ -26,6 +22,7 @@ public class CollisionControl implements IControl{
 	public void setActor(BaseActor actor) {
 		this.actor = actor;
 	}
+	
 	
 	
 	public CollisionControl(BaseActor actor) {

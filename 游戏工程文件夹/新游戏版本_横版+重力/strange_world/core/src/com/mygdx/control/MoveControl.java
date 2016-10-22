@@ -10,8 +10,8 @@ import com.mygdx.world.World;
 public class MoveControl implements IControl{
 	
 	public static final int STATE_WAIT=0;
-	public static final int STATE_LEFT=1;
-	public static final int STATE_RIGHT=2;
+	public static final int STATE_LEFT=-1;
+	public static final int STATE_RIGHT=1;
 	
 	public static final int SPEED_0=0;
 	public static final int SPEED_1=8;
