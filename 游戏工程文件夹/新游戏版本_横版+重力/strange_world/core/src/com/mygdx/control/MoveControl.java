@@ -56,7 +56,6 @@ public class MoveControl implements IControl{
 		default:
 			break;
 		}
-		actor.getWorld().updatePosition();
 	}
 	
 	
