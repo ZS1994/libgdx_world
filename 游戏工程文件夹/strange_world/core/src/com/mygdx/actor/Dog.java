@@ -14,5 +14,4 @@ public class Dog extends BaseActor{
 
 	
 	
-	
 }

@@ -8,5 +8,10 @@ public class Transform {
 		return (int)x/TiledMapSystem.MAP_TILE_WIDTH;
 	}
 	
-	
+	public static int xToxIndex(float x,float w) {
+		return (int) (x/w);
+	}
+	public static int yToxIndex(float y,float h) {
+		return (int)(y/h);
+	}
 }

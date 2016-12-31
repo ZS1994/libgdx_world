@@ -92,11 +92,17 @@ public class TiledMapSystem {
 	
 	
 	/**
-	 * 碰撞检测
+	 * 碰撞检测 真实坐标
+	 * true 通过 false障碍
 	 */
 	public static boolean passEnble(float x,float y){
 		return barriers[(int)y/MAP_TILE_HEIGHT][(int)x/MAP_TILE_WIDTH].getBarrier()==Barrier.BARRIER_PASS_YES;
 	}
-	
-	
+	/**
+	 * 碰撞检测 格子坐标
+	 * true 通过 false障碍
+	 */
+	public static boolean passEnble(int x,int y){
+		return barriers[y][x].getBarrier()==Barrier.BARRIER_PASS_YES;
+	}
 }

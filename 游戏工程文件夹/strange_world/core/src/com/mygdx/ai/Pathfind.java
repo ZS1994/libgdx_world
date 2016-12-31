@@ -1,9 +1,11 @@
 package com.mygdx.ai;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.mygdx.actor.BaseActor;
+import com.mygdx.control.CollisionControl;
 import com.mygdx.control.IControl;
 import com.mygdx.control.MoveControl;
 import com.mygdx.tools.Transform;
@@ -15,10 +17,10 @@ import com.mygdx.world.TiledMapSystem;
  *2016年10月17日17:51:33
  */
 public class Pathfind implements IControl{
+	public static final int STEP = TiledMapSystem.MAP_TILE_WIDTH;
 	
-	
-	private BaseActor actorEnd;
-	private BaseActor actor;
+	private BaseActor actorEnd;//目标
+	private BaseActor actor;//自己
 	private float x;
 	private float y;
 	private float xend;
@@ -29,10 +31,277 @@ public class Pathfind implements IControl{
 	//测试用
 	String[][] str=new String[100][100];
 	//定时器
-	float time1,time2;
+	float time1=0,time2=0;
 	
 	
-	public List<Step> getStepOn() {
+
+	public Pathfind(BaseActor actorStart,BaseActor actorEnd) {
+		this.actor = actorStart;
+		this.actorEnd=actorEnd;
+		initialize();
+	}
+	
+	@Override
+	public void initialize() {
+		this.x = actor.getX();
+		this.y = actor.getY();
+		this.xend = actorEnd.getX();
+		this.yend = actorEnd.getY();
+	}
+	
+	/**
+	 * 安照路线来控制state，从而控制移动
+	 * @param stepMain
+	 */
+	public void update() {
+		if (stepNow==null) {
+			if (time1>=50) {
+				//重新获取一下起点终点
+		        initialize();
+				final Step startNode = new Step(Transform.xToxIndex(x), Transform.xToxIndex(y));  
+		        final Step endNode = new Step(Transform.xToxIndex(xend), Transform.xToxIndex(yend));
+		        if (!startNode.equals(endNode)) {
+		        	long l1=new Date().getTime();
+		        	//太耗时了，需要异步处理
+		        	new Thread(){
+		        		public void run() {
+		        			Step parent = findPath(startNode, endNode);  
+		        			while (parent!=null && parent.stepParent != null) {  
+				        		parent.stepParent.stepChild=parent;
+				        		parent = parent.stepParent;  
+				        	}
+				        	stepNow=startNode;
+				        	time1=0;
+		        		};
+		        	}.start();
+		        	long l2=new Date().getTime();
+		        	System.out.println(l2-l1+"毫秒;time1:"+time1);
+				}
+			}else {
+				time1++;
+			}
+		}else {
+			/*
+			float x=Transform.xToxIndex(actor.getX());
+	    	float y=Transform.xToxIndex(actor.getY());
+	    	if (x==stepNow.x && y>stepNow.y) {
+				actor.setState(MoveControl.STATE_DOWN);
+			}else if (x==stepNow.x && y<stepNow.y) {
+				actor.setState(MoveControl.STATE_UP);
+			}else if (x>stepNow.x && y==stepNow.y) {
+				actor.setState(MoveControl.STATE_LEFT);
+				actor.setStateLast(MoveControl.STATE_LEFT);
+			}else if (x<stepNow.x && y==stepNow.y) {
+				actor.setState(MoveControl.STATE_RIGHT);
+				actor.setStateLast(MoveControl.STATE_RIGHT);
+			}else {
+				actor.setState(MoveControl.STATE_WAIT);
+				stepNow=stepNow.stepChild;
+			}
+			*/
+			float xi=stepNow.x*stepNow.w;
+	    	float yi=stepNow.y*stepNow.h;
+	    	float x=Transform.xToxIndex(actor.getX());
+	    	float y=Transform.xToxIndex(actor.getY());
+	    	if (x==stepNow.x && y>stepNow.y) {
+				actor.setState(MoveControl.STATE_DOWN);
+			}else if (x==stepNow.x && y<stepNow.y) {
+				actor.setState(MoveControl.STATE_UP);
+			}else if (x>stepNow.x && y==stepNow.y) {
+				actor.setState(MoveControl.STATE_LEFT);
+				actor.setStateLast(MoveControl.STATE_LEFT);
+			}else if (x<stepNow.x && y==stepNow.y) {
+				actor.setState(MoveControl.STATE_RIGHT);
+				actor.setStateLast(MoveControl.STATE_RIGHT);
+			}else {
+				if (actor.getState()==MoveControl.STATE_DOWN) {
+					if (actor.getY()<=yi) {
+						actor.setState(MoveControl.STATE_WAIT);
+						stepNow=stepNow.stepChild;
+					}
+				}else if (actor.getState()==MoveControl.STATE_UP) {
+					if (actor.getY()>=yi) {
+						actor.setState(MoveControl.STATE_WAIT);
+						stepNow=stepNow.stepChild;
+					}
+				}else if (actor.getState()==MoveControl.STATE_LEFT) {
+					if (actor.getX()<=xi) {
+						actor.setState(MoveControl.STATE_WAIT);
+						stepNow=stepNow.stepChild;
+					}
+				}else if (actor.getState()==MoveControl.STATE_RIGHT) {
+					if (actor.getX()>=xi) {
+						actor.setState(MoveControl.STATE_WAIT);
+						stepNow=stepNow.stepChild;
+					}
+				}else {
+					actor.setState(MoveControl.STATE_WAIT);
+					stepNow=stepNow.stepChild;
+				}
+			}
+		}
+	}
+	
+	
+	public Step findMinFNodeInOpneList() {  
+        Step tempNode = stepOn.get(0);  
+        for (Step node : stepOn) {  
+            if (node.F < tempNode.F) {  
+                tempNode = node;  
+            }  
+        }  
+        return tempNode;  
+    }  
+	
+	/*
+	public ArrayList<Step> findNeighborNodes(Step currentNode) {  
+		ArrayList<Step> arrayList = new ArrayList<Step>();  
+        float tw=TiledMapSystem.MAP_TILE_WIDTH;
+        float th=TiledMapSystem.MAP_TILE_HEIGHT;
+		// 只考虑上下左右，不考虑斜对角  
+        int topX = (int) currentNode.x;  
+        int topY = (int) (currentNode.y + 1);  
+        if (CollisionControl.canReach(topX,topY,actor) && !exists(stepOff, topX, topY)) {  
+            arrayList.add(new Step(topX, topY));  
+        }  
+        int bottomX = (int) currentNode.x;  
+        int bottomY = (int) (currentNode.y - 1);  
+        if (CollisionControl.canReach(bottomX, bottomY, actor) && !exists(stepOff, bottomX, bottomY)) {  
+            arrayList.add(new Step(bottomX, bottomY));  
+        }  
+        int leftX = (int) (currentNode.x - 1);  
+        int leftY = (int) currentNode.y;  
+        if (CollisionControl.canReach(leftX, leftY, actor) && !exists(stepOff, leftX, leftY)) {  
+            arrayList.add(new Step(leftX, leftY));  
+        }  
+        int rightX = (int) (currentNode.x + 1);  
+        int rightY = (int) currentNode.y;  
+        if (CollisionControl.canReach(rightX, rightY, actor) && !exists(stepOff, rightX, rightY)) {  
+            arrayList.add(new Step(rightX, rightY));  
+        }  
+		return arrayList;
+	}
+	*/
+	
+	public ArrayList<Step> findNeighborNodes(Step currentNode) {  
+		ArrayList<Step> arrayList = new ArrayList<Step>();  
+        // 只考虑上下左右，不考虑斜对角  
+        int topX = (int) currentNode.x;  
+        int topY = (int) (currentNode.y + 1);  
+        if (canReach(topX, topY) && !exists(stepOff, topX, topY) && canReach(topX+1, topY+1)  && canReach(topX, topY+1)) {  
+            arrayList.add(new Step(topX, topY));  
+        }  
+        int bottomX = (int) currentNode.x;  
+        int bottomY = (int) (currentNode.y - 1);  
+        if (canReach(bottomX, bottomY) && !exists(stepOff, bottomX, bottomY)) {  
+            arrayList.add(new Step(bottomX, bottomY));  
+        }  
+        int leftX = (int) (currentNode.x - 1);  
+        int leftY = (int) currentNode.y;  
+        if (canReach(leftX, leftY) && !exists(stepOff, leftX, leftY)) {  
+            arrayList.add(new Step(leftX, leftY));  
+        }  
+        int rightX = (int) (currentNode.x + 1);  
+        int rightY = (int) currentNode.y;  
+        if (canReach(rightX, rightY) && !exists(stepOff, rightX, rightY) && canReach(rightX+1, rightY+1) && canReach(rightX+1, rightY)) {  
+            arrayList.add(new Step(rightX, rightY));  
+        }  
+		return arrayList;
+	}
+	
+	
+	public boolean canReach(int x, int y) {  
+        if (x >= 0 && y >= 0) {  
+            return TiledMapSystem.passEnble(x,y);  
+        }  
+        return false;
+    }  
+	
+	
+	
+	public static Step find(List<Step> nodes, Step point) {  
+        for (Step n : nodes)  
+            if ((n.x == point.x) && (n.y == point.y)) {  
+                return n;  
+            }  
+        return null;  
+    } 
+	
+	public static boolean exists(List<Step> nodes, Step node) {  
+        for (Step n : nodes) {  
+            if ((n.x == node.x) && (n.y == node.y)) {  
+                return true;  
+            }  
+        }  
+        return false;  
+    }  
+  
+    public static boolean exists(List<Step> nodes, int x, int y) {  
+        for (Step n : nodes) {  
+            if ((n.x == x) && (n.y == y)) {  
+                return true;  
+            }  
+        }  
+        return false;  
+    }  
+    
+    public Step findPath(Step startNode, Step endNode) { 
+    	stepOn.clear();
+    	stepOff.clear();
+        // 把起点加入 open list  
+        stepOn.add(startNode);  
+        while (stepOn.size() > 0) {  
+            // 遍历 open list ，查找 F值最小的节点，把它作为当前要处理的节点  
+        	Step currentNode = findMinFNodeInOpneList();  
+            // 从open list中移除  
+        	stepOn.remove(currentNode);  
+            // 把这个节点移到 close list  
+        	stepOff.add(currentNode);  
+            ArrayList<Step> neighborNodes = findNeighborNodes(currentNode);  
+            for (Step node : neighborNodes) {  
+                if (exists(stepOn, node)) {  
+                    foundPoint(currentNode, node);  
+                } else {  
+                    notFoundPoint(currentNode, endNode, node);  
+                }  
+            }  
+            if (find(stepOn, endNode) != null) {  
+                return find(stepOn, endNode);  
+            }  
+        }  
+        return find(stepOn, endNode);  
+    }  
+  
+    private void foundPoint(Step tempStart, Step node) {  
+        int G = calcG(tempStart, node);  
+        if (G < node.G) {  
+            node.stepParent = tempStart;  
+            node.G = G;  
+            node.calcF();  
+        }  
+    }  
+  
+    private void notFoundPoint(Step tempStart, Step end, Step node) {  
+        node.stepParent = tempStart;  
+        node.G = calcG(tempStart, node);  
+        node.H = calcH(end, node);  
+        node.calcF();  
+        stepOn.add(node);  
+    }  
+  
+    private int calcG(Step start, Step node) {  
+        int G = STEP;  
+        int parentG = (int) (node.stepParent != null ? node.stepParent.G : 0);  
+        return G + parentG;  
+    }  
+  
+    private int calcH(Step end, Step node) {  
+        int step = (int) (Math.abs(node.x - end.x) + Math.abs(node.y - end.y));  
+        return step * STEP;  
+    }  
+  
+    //------------------------------------------
+    public List<Step> getStepOn() {
 		return stepOn;
 	}
 	public void setStepOn(List<Step> stepOn) {
@@ -50,261 +319,5 @@ public class Pathfind implements IControl{
 	public void setActor(BaseActor actor) {
 		this.actor = actor;
 	}
-
-	
-
-
-	public Pathfind(BaseActor actorStart,BaseActor actorEnd) {
-		this.actor = actorStart;
-		this.actorEnd=actorEnd;
-		initialize();
-	}
-	
-	
-	
-	/**
-	 * 组装路线
-	 * @param stepMain
-	 */
-	private void assembly (Step stepMain) {
-		//当到达了终点时停止
-		if(Transform.xToxIndex(stepMain.getX())==Transform.xToxIndex(xend) && Transform.xToxIndex(stepMain.getY())==Transform.xToxIndex(yend)) {
-			return;
-		}
-		
-		Step step1=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()+stepMain.getH());//上
-		Step step2=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX(), stepMain.getY()-stepMain.getH());//下
-		Step step3=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()-stepMain.getW(), stepMain.getY());//左
-		Step step4=new Step(stepMain.getW(), stepMain.getH(), stepMain.getX()+stepMain.getW(), stepMain.getY());//右
-		
-		getStepOn().add(step1);
-		getStepOn().add(step2);
-		getStepOn().add(step3);    
-		getStepOn().add(step4);
-		
-		getStepOff().add(stepMain);//将起点加入关闭列表
-		
-		//与地图的碰撞检测,将碰撞不通过的加入关闭列表
-		/* <与地图的碰撞检测>
-		 * 1,算长宽各占几个格子（32px），得到测试点数
-		 * 2，分方向检测各监测点
-		 * */
-		int w=(int)actor.getWidth()/TiledMapSystem.MAP_TILE_WIDTH;
-		int h=(int)actor.getHeight()/TiledMapSystem.MAP_TILE_HEIGHT;
-		if (actor.getWidth()>w*TiledMapSystem.MAP_TILE_WIDTH) {
-			w=w+2;
-		}else {
-			w=w+1;
-		}
-		if (actor.getHeight()>h*TiledMapSystem.MAP_TILE_HEIGHT) {
-			h=h+2;
-		}else {
-			h=h+1;
-		}
-		boolean isPass=true;//是否可通过的标志
-		//检测上
-		for (int i = 0; i < w-1; i++) {
-			if (!TiledMapSystem.passEnble(step1.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, step1.getY()+actor.getHeight())) {
-				getStepOff().add(step1);
-				break;
-			}
-		}
-		if (!TiledMapSystem.passEnble(step1.getX()+actor.getWidth(), step1.getY()+actor.getHeight())) {
-			getStepOff().add(step1);
-		}
-		//检测下
-		for (int i = 0; i < w-1; i++) {
-			if (!TiledMapSystem.passEnble(step2.getX()+TiledMapSystem.MAP_TILE_WIDTH*i, step2.getY())) {
-				getStepOff().add(step2);
-				break;
-			}
-		}
-		if (!TiledMapSystem.passEnble(step2.getX()+actor.getWidth(), step2.getY())) {
-			getStepOff().add(step2);
-		}
-		//检测左
-		for (int i = 0; i < h-1; i++) {
-			if (!TiledMapSystem.passEnble(step3.getX(), step3.getY()+TiledMapSystem.MAP_TILE_HEIGHT*i)) {
-				getStepOff().add(step3);
-				break;
-			}
-		}
-		if (!TiledMapSystem.passEnble(step3.getX(), step3.getY()+actor.getHeight())) {
-			getStepOff().add(step3);
-		}
-		//检测右
-		for (int i = 0; i < h-1; i++) {
-			if (!TiledMapSystem.passEnble(step4.getX()+actor.getWidth(), step4.getY()+TiledMapSystem.MAP_TILE_HEIGHT*i)) {
-				getStepOff().add(step4);
-				break;
-			}
-		}
-		if (!TiledMapSystem.passEnble(step4.getX()+actor.getWidth(), step4.getY()+actor.getHeight())) {
-			getStepOff().add(step4);
-		}
-			
-			
-		
-		//去掉开启列表中的关闭列表的项
-		for (int i = getStepOn().size()-1; i >=0 ; i--) {
-			for (int j = 0; j < getStepOff().size(); j++) {
-				if (getStepOn().get(i).getX()==getStepOff().get(j).getX() && getStepOn().get(i).getY()==getStepOff().get(j).getY()) {
-					getStepOn().remove(i);
-					break;
-				}
-			}
-		}
-		
-		/*
-		 * f=h+g。一定相等了，因为只能上下左右移动并且速度都为speed，找h最小的就行了。
-		 */
-		//计算f，选择f最小的，从开启列表中去掉大的，其余的加入关闭列表，开启列表就剩下最小的那个了
-		//现在是比h，找h小的成功了
-		for (int i = getStepOn().size()-1; i >0; i--) {
-			float h1=Transform.xToxIndex(Math.abs(getStepOn().get(i).getX()-xend))+Transform.xToxIndex(Math.abs(getStepOn().get(i).getY()-yend));
-			float h2=Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getX()-xend))+Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getY()-yend));
-			float g1=Transform.xToxIndex(Math.abs(getStepOn().get(i).getX()-x))+Transform.xToxIndex(Math.abs(getStepOn().get(i).getY()-y));
-			float g2=Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getX()-x))+Transform.xToxIndex(Math.abs(getStepOn().get(i-1).getY()-y));
-			float f1=h1+g1;
-			float f2=h2+g2;
-			if (h1>h2) { 
-				getStepOff().add(getStepOn().get(i));
-				getStepOn().remove(getStepOn().get(i));
-			}else {
-				getStepOff().add(getStepOn().get(i-1));
-				getStepOn().remove(getStepOn().get(i-1));
-			}
-		}
-		
-		//从开启列表中拿出剩下的，重新从这个再来处理
-		if (getStepOn().size()>0) {
-			Step steptmp=getStepOn().get(0);
-			stepMain.setStepChild(steptmp);
-			steptmp.setStepParent(stepMain);
-			assembly(steptmp);
-		}
-	}
-	
-	
-	
-	/**
-	 * 安照路线来控制state，从而控制移动
-	 * @param stepMain
-	 */
-	public void update() {
-		Step steptmp=stepNow.getStepChild();
-		if (steptmp!=null) {
-//			System.out.println("actor:"+actor.getX()+" "+actor.getY());
-//			System.out.println("stepNow:"+stepNow.getX()+" "+stepNow.getY());
-//			System.out.println("state:"+actor.getState());
-//			System.out.println("steptmp:"+steptmp.getX()+" "+steptmp.getY());
-//			System.out.println("------------------------------");
-			if (actor.getX()==steptmp.getX() && actor.getY()==steptmp.getY()) {
-				stepNow=steptmp;
-				actor.setState(MoveControl.STATE_WAIT);
-				return;
-			}else {
-				if (steptmp.getX()<stepNow.getX()) {//往左
-					actor.setState(MoveControl.STATE_LEFT);
-					actor.setStateLast(MoveControl.STATE_LEFT);
-				}else if (steptmp.getX()>stepNow.getX()) {
-					actor.setState(MoveControl.STATE_RIGHT);
-					actor.setStateLast(MoveControl.STATE_RIGHT);
-				}else if (steptmp.getY()>stepNow.getY()) {
-					actor.setState(MoveControl.STATE_UP);
-				}else if (steptmp.getY()<stepNow.getY()) {
-					actor.setState(MoveControl.STATE_DOWN);
-				}else {
-					actor.setState(MoveControl.STATE_WAIT);
-				}
-			}
-		}else {
-			actor.setState(MoveControl.STATE_WAIT);
-			if (time1==0) {
-				time1=actor.getStateTime();
-			}
-			time2=actor.getStateTime();
-			if (time2-time1>=5) {
-				time1=0;
-				time2=0;
-				initialize();
-			}
-			
-		}
-	}
-	
-	@Override
-	public void initialize() {
-		getStepOn().clear();
-		getStepOff().clear();
-		this.x = actor.getX();
-		this.y = actor.getY();
-		this.xend = actorEnd.getX();
-		this.yend = actorEnd.getY();
-		stepNow=new Step(TiledMapSystem.MAP_TILE_WIDTH, TiledMapSystem.MAP_TILE_HEIGHT, actor.getX(), actor.getY());
-		assembly(stepNow);
-//		tell(getStepOn().get(0));
-//		tell2(stepNow);
-//		tell4();
-	}
-	
-	
-	
-	
-	private void tell(Step s) {
-		System.out.println(s.toString());
-		if (s.getStepParent()!=null) {
-			tell(s.getStepParent());
-		}
-		
-	}
-	private void tell2(Step s) {
-		System.out.println(s.toString());
-		if (s.getStepChild()!=null) {
-			tell2(s.getStepChild());
-		}
-	}
-	
-	private void tell3(Step s) {
-		str[Transform.xToxIndex(s.getY())][Transform.xToxIndex(s.getX())]="◆";
-		if (s.getStepChild()!=null) {
-			tell3(s.getStepChild());
-		}
-	}
-	
-	private void tell4(){
-		System.out.println("实际路径————————————————————————");
-		for (int i = 0; i < str.length; i++) {
-			for (int j = 0; j < str[i].length; j++) {
-				str[i][j]="◇";
-			}
-		}
-		tell3(stepNow);
-		str[Transform.xToxIndex(y)][Transform.xToxIndex(x)]="★";
-		str[Transform.xToxIndex(yend)][Transform.xToxIndex(xend)]="☆";
-		for (int i = str.length-1; i > 0; i--) {
-			for (int j = 0; j < str[i].length; j++) {
-				System.out.print(str[i][j]);
-			}
-			System.out.println();
-		}
-		System.out.println("关闭列表————————————————————————");
-		for (int i = 0; i < str.length; i++) {
-			for (int j = 0; j < str[i].length; j++) {
-				str[i][j]="◇";
-			}
-		}
-		for (int i = 0; i < getStepOff().size(); i++) {
-			str[Transform.xToxIndex(getStepOff().get(i).getY())][Transform.xToxIndex(getStepOff().get(i).getX())]="◆";
-		}
-		for (int i = str.length-1; i > 0; i--) {
-			for (int j = 0; j < str[i].length; j++) {
-				System.out.print(str[i][j]);
-			}
-			System.out.println();
-		}
-	}
-	
-	
-	
+    
 }

@@ -1,14 +1,20 @@
 package com.mygdx.ai;
 
+import com.mygdx.actor.BaseActor;
+import com.mygdx.world.TiledMapSystem;
+
 public class Step {
 	
-	private float w;
-	private float h;
-	private float x;
-	private float y;
+	public float w;
+	public float h;
+	//以下是格子坐标，并不是真实坐标
+	public float x;
+	public float y;
 	
-	private Step stepChild;//子节点
-	private Step stepParent;//父节点
+	public float F,H,G;//用于计算最优解
+	
+	public Step stepChild;//
+	public Step stepParent;//
 	
 
 	
@@ -49,28 +55,42 @@ public class Step {
 		this.stepParent = stepParent;
 	}
 	
-	
-	/**
-	 * 张顺 2016-10-18
-	 * 作为寻路算法的步
-	 * @param w 宽
-	 * @param h 高
-	 * @param x 起点x
-	 * @param y 起点y
-	 */
 	public Step(float w, float h, float x, float y) {
 		this.w = w;
 		this.h = h;
 		this.x = x;
 		this.y = y;
 	}
+	
+	
+	
+	public Step(float x, float y) {
+		super();
+		this.x = x;
+		this.y = y;
+		this.w=TiledMapSystem.MAP_TILE_WIDTH;
+		this.h=TiledMapSystem.MAP_TILE_HEIGHT;
+	}
+	
+	
 	@Override
 	public String toString() {
 		return "Step [x=" + x + ", y=" + y + "]";
 	}
 	
+	public void calcF() {  
+        this.F = this.G + this.H;  
+    }  
 	
 	
-	
+	@Override
+	public boolean equals(Object arg0) {
+		Step step=(Step) arg0;
+		if (x==step.x && y==step.y) {
+			return true;
+		}else {
+			return false;
+		}
+	}
 	
 }

@@ -18,6 +18,7 @@ import com.mygdx.control.BtnAddControl;
 import com.mygdx.control.BtnDeleteControl;
 import com.mygdx.control.BtnDirectionControl;
 import com.mygdx.control.CollisionControl;
+import com.mygdx.control.FootPrintControl;
 import com.mygdx.control.MoveControl;
 import com.mygdx.game.MySkin;
 import com.mygdx.world.resources.Mountain;
@@ -59,7 +60,7 @@ public class World {
 		TiledMapSystem.setMap(map);
 		TiledMapSystem.initialize();
 		//-------主角----------
-		h=new MainActor(600,160,this);
+		h=new MainActor(600,660,this);
 		stage.addActor(h);
 		h.getControls().add(new AnimationControl(h));
 		h.getControls().add(new BtnDirectionControl(h));
@@ -82,13 +83,16 @@ public class World {
 	}
 	
 	private void addDogs() {
-		Dog dog=new Dog(1000, 4000, this);
+		Dog dog=new Dog(1000, 1000, this);
+		dog.setSpeed(1);
 		stage.addActor(dog);
 		dog.getControls().add(new AnimationControl(dog));
 		dog.getControls().add(new Pathfind(dog, h));
 		dog.getControls().add(new CollisionControl(dog));
 		dog.getControls().add(new MoveControl(dog));
+		dog.getControls().add(new FootPrintControl(dog));
 		//-----------再来5条狗看看---------------------
+		/*
 		Dog dog1=new Dog(1000, 3000, this);
 		stage.addActor(dog1);
 		dog.getControls().add(new AnimationControl(dog1));
@@ -119,6 +123,7 @@ public class World {
 		dog.getControls().add(new Pathfind(dog5, h));
 		dog.getControls().add(new CollisionControl(dog5));
 		dog.getControls().add(new MoveControl(dog5));
+		*/
 	}
 	
 	

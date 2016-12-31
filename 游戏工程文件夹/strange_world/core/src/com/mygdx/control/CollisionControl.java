@@ -1,6 +1,7 @@
 package com.mygdx.control;
 
 import com.mygdx.actor.BaseActor;
+import com.mygdx.ai.Step;
 import com.mygdx.world.TiledMapSystem;
 
 /**
@@ -38,6 +39,12 @@ public class CollisionControl implements IControl{
 
 	@Override
 	public void update() {
+		isPass(actor);
+	}
+
+
+	
+	public static boolean isPass(BaseActor actor) {
 		/* <与地图的碰撞检测>
 		 * 1,算长宽各占几个格子（32px），得到测试点数
 		 * 2，分方向检测各监测点
@@ -127,11 +134,15 @@ public class CollisionControl implements IControl{
 		default:
 			break;
 		}
-		
-		
-		
+		return isPass;
 	}
 
-
-
+	public static boolean canReach(Step step,BaseActor ba) {
+		BaseActor actor=new BaseActor(step.x*TiledMapSystem.MAP_TILE_WIDTH, step.y*TiledMapSystem.MAP_TILE_HEIGHT, ba.getWidth(), ba.getHeight(), ba.getType(), ba.getWorld());
+		return isPass(actor);
+	}
+	public static boolean canReach(int x ,int y, BaseActor ba) {
+		BaseActor actor=new BaseActor(x*TiledMapSystem.MAP_TILE_WIDTH, y*TiledMapSystem.MAP_TILE_HEIGHT, ba.getWidth(), ba.getHeight(), ba.getType(), ba.getWorld());
+		return isPass(actor);
+	}
 }
